@@ -58,7 +58,7 @@ module Binaryen
         AtomicWait = LibBinaryen.BinaryenAtomicWaitId()
         AtomicWake = LibBinaryen.BinaryenAtomicWakeId()
     end
-    alias ExternalKind = LibBinaryen::ExternalKind
+    alias ExternalKind = LibBinaryen::BinaryenExternalKind
     module ExternalKinds
         Function = LibBinaryen.BinaryenExternalFunction()
         Table = LibBinaryen.BinaryenExternalTable()
@@ -214,7 +214,7 @@ module Binaryen
     end
     struct Expression
         NULL = Expression.new Pointer(Void).null
-        alias Id = LibBinaryen::ExpressionId
+        alias Id = LibBinaryen::BinaryenExpressionId
         alias Ids = ExpressionIds
         def initialize(@ref : LibBinaryen::BinaryenExpressionRef)
         end
@@ -223,11 +223,11 @@ module Binaryen
         end
         def id : Id
             return Ids::Invalid if @ref.null?
-            LibBinaryen::BinaryenExpressionGetId(@ref)
+            LibBinaryen.BinaryenExpressionGetId(@ref)
         end
         def print
             p @ref if @ref.null?
-            LibBinaryen::BinaryenExpressionPrint(@ref)
+            LibBinaryen.BinaryenExpressionPrint(@ref)
         end
         def is_block? : Bool
             id == Ids::Block
@@ -241,17 +241,17 @@ module Binaryen
         def name : String | Nil
             String.new case id
             when Ids::Block
-                LibBinaryen::BinaryenBlockGetName(@ref).as(Pointer(UInt8))
+                LibBinaryen.BinaryenBlockGetName(@ref).as(Pointer(UInt8))
             when Ids::Loop
-                LibBinaryen::BinaryenLoopGetName(@ref).as(Pointer(UInt8))
+                LibBinaryen.BinaryenLoopGetName(@ref).as(Pointer(UInt8))
             when Ids::Break
-                LibBinaryen::BinaryenBreakGetName(@ref).as(Pointer(UInt8))
+                LibBinaryen.BinaryenBreakGetName(@ref).as(Pointer(UInt8))
             else
                 return nil
             end
         end
         def type : Type
-            LibBinaryen::BinaryenExpressionGetType(@ref)
+            LibBinaryen.BinaryenExpressionGetType(@ref)
         end
         struct SwitchNames
             getter exp : Expression
@@ -259,13 +259,13 @@ module Binaryen
             def initialize(@exp : Expression)
             end
             def size : Int
-                LibBinaryen::BinaryenSwitchGetNumNames(exp)
+                LibBinaryen.BinaryenSwitchGetNumNames(exp)
             end
             def unsafe_at(i : Int) : String
-                String.new LibBinaryen::BinaryenSwitchGetName(exp, i.to_u32)
+                String.new LibBinaryen.BinaryenSwitchGetName(exp, i.to_u32)
             end
             def default : String
-                String.new LibBinaryen::BinaryenSwitchGetDefaultName(exp)
+                String.new LibBinaryen.BinaryenSwitchGetDefaultName(exp)
             end
         end
         def switch_names
@@ -280,15 +280,15 @@ module Binaryen
             def size : Int
                 case exp.id
                 when Ids::Block
-                    LibBinaryen::BinaryenBlockGetNumChildren(exp)
+                    LibBinaryen.BinaryenBlockGetNumChildren(exp)
                 when Ids::CallImport
-                    LibBinaryen::BinaryenCallImportGetNumOperands(exp)
+                    LibBinaryen.BinaryenCallImportGetNumOperands(exp)
                 when Ids::Call
-                    LibBinaryen::BinaryenCallGetNumOperands(exp)
+                    LibBinaryen.BinaryenCallGetNumOperands(exp)
                 when Ids::CallIndirect
-                    LibBinaryen::BinaryenCallIndirectGetNumOperands(exp)
+                    LibBinaryen.BinaryenCallIndirectGetNumOperands(exp)
                 when Ids::Host
-                    LibBinaryen::BinaryenHostGetNumOperands(exp)
+                    LibBinaryen.BinaryenHostGetNumOperands(exp)
                 else
                     raise "bad expression type"
                 end
@@ -296,15 +296,15 @@ module Binaryen
             def unsafe_at(i : Int) : Expression
                 Expression.new case exp.id
                 when Ids::Block
-                    LibBinaryen::BinaryenBlockGetChild(exp, i.to_u32)
+                    LibBinaryen.BinaryenBlockGetChild(exp, i.to_u32)
                 when Ids::Call
-                    LibBinaryen::BinaryenCallGetOperand(exp, i.to_u32)
+                    LibBinaryen.BinaryenCallGetOperand(exp, i.to_u32)
                 when Ids::CallImport
-                    LibBinaryen::BinaryenCallImportGetOperand(exp, i.to_u32)
+                    LibBinaryen.BinaryenCallImportGetOperand(exp, i.to_u32)
                 when Ids::CallIndirect
-                    LibBinaryen::BinaryenCallIndirectGetOperand(exp, i.to_u32)
+                    LibBinaryen.BinaryenCallIndirectGetOperand(exp, i.to_u32)
                 when Ids::Host
-                    LibBinaryen::BinaryenHostGetOperand(exp, i.to_u32)
+                    LibBinaryen.BinaryenHostGetOperand(exp, i.to_u32)
                 else
                     raise "bad expression type"
                 end
@@ -323,13 +323,13 @@ module Binaryen
         def condition : Expression
             Expression.new case id
             when Ids::If
-                LibBinaryen::BinaryenIfGetCondition(@ref)
+                LibBinaryen.BinaryenIfGetCondition(@ref)
             when Ids::Break
-                LibBinaryen::BinaryenBreakGetCondition(@ref)
+                LibBinaryen.BinaryenBreakGetCondition(@ref)
             when Ids::Switch
-                LibBinaryen::BinaryenSwitchGetCondition(@ref)
+                LibBinaryen.BinaryenSwitchGetCondition(@ref)
             when Ids::Select
-                LibBinaryen::BinaryenSelectGetCondition(@ref)
+                LibBinaryen.BinaryenSelectGetCondition(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -337,29 +337,29 @@ module Binaryen
         def value : Expression | Int | String
             Expression.new case id
             when Ids::Break
-                LibBinaryen::BinaryenBreakGetValue(@ref)
+                LibBinaryen.BinaryenBreakGetValue(@ref)
             when Ids::Switch
-                LibBinaryen::BinaryenSwitchGetValue(@ref)
+                LibBinaryen.BinaryenSwitchGetValue(@ref)
             when Ids::SetLocal
-                LibBinaryen::BinaryenSetLocalGetValue(@ref)
+                LibBinaryen.BinaryenSetLocalGetValue(@ref)
             when Ids::SetGlobal
-                LibBinaryen::BinaryenSetGlobalGetValue(@ref)
+                LibBinaryen.BinaryenSetGlobalGetValue(@ref)
             when Ids::Store
-                LibBinaryen::BinaryenStoreGetValue(@ref)
+                LibBinaryen.BinaryenStoreGetValue(@ref)
             when Ids::Return
-                LibBinaryen::BinaryenReturnGetValue(@ref)
+                LibBinaryen.BinaryenReturnGetValue(@ref)
             when Ids::AtomicRMW
-                LibBinaryen::BinaryenAtomicRMWGetValue(@ref)
+                LibBinaryen.BinaryenAtomicRMWGetValue(@ref)
             when Ids::Const
                 return case type
                 when Types::Int32
-                    BinaryenConstGetValueI32(@ref)
+                    LibBinaryen.BinaryenConstGetValueI32(@ref)
                 when Types::Int64
-                    BinaryenConstGetValueI64(@ref)
+                    LibBinaryen.BinaryenConstGetValueI64(@ref)
                 when Types::Float32
-                    BinaryenConstGetValueF32(@ref)
+                    LibBinaryen.BinaryenConstGetValueF32(@ref)
                 when Types::Float64
-                    BinaryenConstGetValueF64(@ref)
+                    LibBinaryen.BinaryenConstGetValueF64(@ref)
                 else
                     raise "bad Const value type"
                 end
@@ -368,20 +368,20 @@ module Binaryen
             end
         end
         def value_unary : Expression
-            LibBinaryen::BinaryenUnaryGetValue(@ref)
+            LibBinaryen.BinaryenUnaryGetValue(@ref)
         end
         def value_left : Expression
-            LibBinaryen::BinaryenBinaryGetLeft(@ref)
+            LibBinaryen.BinaryenBinaryGetLeft(@ref)
         end
         def value_right : Expression
-            LibBinaryen::BinaryenBinaryGetRight(@ref)
+            LibBinaryen.BinaryenBinaryGetRight(@ref)
         end
         def if_true : Expression
             Expression.new case id
             when Ids::If
-                LibBinaryen::BinaryenIfGetIfTrue(@ref)
+                LibBinaryen.BinaryenIfGetIfTrue(@ref)
             when Ids::Select
-                LibBinaryen::BinaryenSelectGetIfTrue(@ref)
+                LibBinaryen.BinaryenSelectGetIfTrue(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -389,48 +389,48 @@ module Binaryen
         def if_false : Expression
             Expression.new case id
             when Ids::If
-                LibBinaryen::BinaryenSelectGetIfTrue(@ref)
+                LibBinaryen.BinaryenSelectGetIfTrue(@ref)
             when Ids::Select
-                LibBinaryen::BinaryenSelectGetIfFalse(@ref)
+                LibBinaryen.BinaryenSelectGetIfFalse(@ref)
             else
                 raise "bad Expression Id"
             end
         end
         def body : Expression
             raise "expression must be Loop, but #{id}" unless is_loop?
-            Expression.new LibBinaryen::BinaryenLoopGetBody(@ref)
+            Expression.new LibBinaryen.BinaryenLoopGetBody(@ref)
         end
         def target : Expression
             raise "expression must be Call, but #{id}" unless id == Ids::Call
-            Expression.new LibBinaryen::BinaryenCallGetTarget(@ref)
+            Expression.new LibBinaryen.BinaryenCallGetTarget(@ref)
         end
         # local_ind or global_ind
         def var_ind : Int | String
             case id
             when Ids::GetLocal
-                LibBinaryen::BinaryenGetLocalGetIndex(@ref)
+                LibBinaryen.BinaryenGetLocalGetIndex(@ref)
             when Ids::SetLocal
-                LibBinaryen::BinaryenSetLocalGetIndex(@ref)
+                LibBinaryen.BinaryenSetLocalGetIndex(@ref)
             when Ids::GetGlobal
-                String.new LibBinaryen::BinaryenGetGlobalGetName(@ref)
+                String.new LibBinaryen.BinaryenGetGlobalGetName(@ref)
             when Ids::SetGlobal
-                String.new LibBinaryen::BinaryenSetGlobalGetName(@ref)
+                String.new LibBinaryen.BinaryenSetGlobalGetName(@ref)
             else
                 raise "bad Expression Id"
             end
         end
         def op_unary : Operation
-            LibBinaryen::BinaryenUnaryGetOp(@ref)
+            LibBinaryen.BinaryenUnaryGetOp(@ref)
         end
         def op_binary : Operation
-            LibBinaryen::BinaryenBinaryGetOp(@ref)
+            LibBinaryen.BinaryenBinaryGetOp(@ref)
         end
         def op : Operation
             case id
             when Ids::Host
-                LibBinaryen::BinaryenHostGetOp(@ref)
+                LibBinaryen.BinaryenHostGetOp(@ref)
             when Ids::AtomicRMW
-                LibBinaryen::BinaryenAtomicRMWGetOp(@ref)
+                LibBinaryen.BinaryenAtomicRMWGetOp(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -438,9 +438,9 @@ module Binaryen
         def is_atomic? : Bool
             case id
             when Ids::Load
-                LibBinaryen::BinaryenLoadIsAtomic(@ref).to_i32 != 0_u32
+                LibBinaryen.BinaryenLoadIsAtomic(@ref).to_i32 != 0_u32
             when Ids::Store
-                LibBinaryen::BinaryenStoreIsAtomic(@ref).to_i32 != 0_u32
+                LibBinaryen.BinaryenStoreIsAtomic(@ref).to_i32 != 0_u32
             else
                 raise "bad Expression Id"
             end
@@ -448,13 +448,13 @@ module Binaryen
         def bytes : Int
             case id
             when Ids::Load
-                LibBinaryen::BinaryenLoadGetBytes(@ref)
+                LibBinaryen.BinaryenLoadGetBytes(@ref)
             when Ids::Store
-                LibBinaryen::BinaryenStoreGetBytes(@ref)
+                LibBinaryen.BinaryenStoreGetBytes(@ref)
             when Ids::AtomicRMW
-                LibBinaryen::BinaryenAtomicRMWGetBytes(@ref)
+                LibBinaryen.BinaryenAtomicRMWGetBytes(@ref)
             when Ids::AtomicCmpxchg
-                LibBinaryen::BinaryenAtomicCmpxchgGetBytes(@ref)
+                LibBinaryen.BinaryenAtomicCmpxchgGetBytes(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -462,13 +462,13 @@ module Binaryen
         def offset : Int
             case id
             when Ids::Load
-                LibBinaryen::BinaryenLoadGetOffset(@ref)
+                LibBinaryen.BinaryenLoadGetOffset(@ref)
             when Ids::Store
-                LibBinaryen::BinaryenStoreGetOffset(@ref)
+                LibBinaryen.BinaryenStoreGetOffset(@ref)
             when Ids::AtomicRMW
-                LibBinaryen::BinaryenAtomicRMWGetOffset(@ref)
+                LibBinaryen.BinaryenAtomicRMWGetOffset(@ref)
             when Ids::AtomicCmpxchg
-                LibBinaryen::BinaryenAtomicCmpxchgGetOffset(@ref)
+                LibBinaryen.BinaryenAtomicCmpxchgGetOffset(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -476,9 +476,9 @@ module Binaryen
         def align : Int
             case id
             when Ids::Load
-                LibBinaryen::BinaryenLoadGetAlign(@ref)
+                LibBinaryen.BinaryenLoadGetAlign(@ref)
             when Ids::Store
-                LibBinaryen::BinaryenStoreGetAlign(@ref)
+                LibBinaryen.BinaryenStoreGetAlign(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -486,17 +486,17 @@ module Binaryen
         def ptr : Expression
             Expression.new case id
             when Ids::Load
-                LibBinaryen::BinaryenLoadGetPtr(@ref)
+                LibBinaryen.BinaryenLoadGetPtr(@ref)
             when Ids::Store
-                LibBinaryen::BinaryenStoreGetPtr(@ref)
+                LibBinaryen.BinaryenStoreGetPtr(@ref)
             when Ids::AtomicRMW
-                LibBinaryen::BinaryenAtomicRMWGetPtr(@ref)
+                LibBinaryen.BinaryenAtomicRMWGetPtr(@ref)
             when Ids::AtomicCmpxchg
-                LibBinaryen::BinaryenAtomicCmpxchgGetPtr(@ref)
+                LibBinaryen.BinaryenAtomicCmpxchgGetPtr(@ref)
             when Ids::AtomicWait
-                LibBinaryen::BinaryenAtomicWaitGetPtr(@ref)
+                LibBinaryen.BinaryenAtomicWaitGetPtr(@ref)
             when Ids::AtomicWake
-                LibBinaryen::BinaryenAtomicWakeGetPtr(@ref)
+                LibBinaryen.BinaryenAtomicWakeGetPtr(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -504,9 +504,9 @@ module Binaryen
         def expected : Expression
             Expression.new case id
             when Ids::AtomicCmpxchg
-                LibBinaryen::BinaryenAtomicCmpxchgGetExpected(@ref)
+                LibBinaryen.BinaryenAtomicCmpxchgGetExpected(@ref)
             when Ids::AtomicWait
-                LibBinaryen::BinaryenAtomicWaitGetExpected(@ref)
+                LibBinaryen.BinaryenAtomicWaitGetExpected(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -514,7 +514,7 @@ module Binaryen
         def replacement : Expression
             Expression.new case id
             when Ids::AtomicCmpxchg
-                LibBinaryen::BinaryenAtomicCmpxchgGetReplacement(@ref)
+                LibBinaryen.BinaryenAtomicCmpxchgGetReplacement(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -522,7 +522,7 @@ module Binaryen
         def expected_type : Type
             case id
             when Ids::AtomicWait
-                LibBinaryen::BinaryenAtomicWaitGetExpectedType(@ref)
+                LibBinaryen.BinaryenAtomicWaitGetExpectedType(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -530,7 +530,7 @@ module Binaryen
         def wake_count : Expression
             Expression.new case id
             when Ids::AtomicWait
-                LibBinaryen::BinaryenAtomicWakeGetWakeCount(@ref)
+                LibBinaryen.BinaryenAtomicWakeGetWakeCount(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -538,7 +538,7 @@ module Binaryen
         def timeout : Expression
             Expression.new case id
             when Ids::AtomicWait
-                LibBinaryen::BinaryenAtomicWaitGetTimeout(@ref)
+                LibBinaryen.BinaryenAtomicWaitGetTimeout(@ref)
             else
                 raise "bad Expression Id"
             end
@@ -574,7 +574,7 @@ module Binaryen
             @modl.remove_function_type @name
         end
         def name
-            String.new LibBinaryen::BinaryenFunctionTypeGetName @ftref
+            String.new LibBinaryen.BinaryenFunctionTypeGetName @ftref
         end
         struct Params
             include Indexable(String)
@@ -582,33 +582,36 @@ module Binaryen
             end
             getter function_type
             def size
-                LibBinaryen::BinaryenFunctionTypeGetNumParams @function_type
+                LibBinaryen.BinaryenFunctionTypeGetNumParams @function_type
             end
             def unsafe_at(i : Int)
-                String.new LibBinaryen::BinaryenFunctionTypeGetParam @functionType, i.to_u32
+                String.new LibBinaryen.BinaryenFunctionTypeGetParam @functionType, i.to_u32
             end
         end
         def params
             Params.new self
         end
         def result
-            LibBinaryen::BinaryenFunctionTypeGetResult @ftref
+            LibBinaryen.BinaryenFunctionTypeGetResult @ftref
         end
     end
     struct Function
         def initialize(@ref : LibBinaryen::BinaryenFunctionRef)
         end
         getter ref : LibBinaryen::BinaryenFunctionRef
+        def to_unsafe
+            @ref
+        end
         struct Params
             def initialize(@f : Function)
             end
             getter f : Function
             include Indexable(Type)
             def size : Int
-                LibBinaryen::BinaryenFunctionGetNumParams(f)
+                LibBinaryen.BinaryenFunctionGetNumParams(f)
             end
             def unsafe_at(i : Int) : Type
-                LibBinaryen::BinaryenFunctionGetParam(f, i)
+                LibBinaryen.BinaryenFunctionGetParam(f, i)
             end
         end
         struct Vars
@@ -617,10 +620,10 @@ module Binaryen
             getter f : Function
             include Indexable(Type)
             def size : Int
-                LibBinaryen::BinaryenFunctionGetNumVars(f)
+                LibBinaryen.BinaryenFunctionGetNumVars(f)
             end
             def unsafe_at(i : Int) : Type
-                LibBinaryen::BinaryenFunctionGetVar(f, i)
+                LibBinaryen.BinaryenFunctionGetVar(f, i)
             end
         end
         def params : Params
@@ -630,16 +633,16 @@ module Binaryen
             Vars.new self
         end
         def result_type : Type
-            LibBinaryen::BinaryenFunctionGetResult(@ref)
+            LibBinaryen.BinaryenFunctionGetResult(@ref)
         end
         def body : Expression
-            Expression.new LibBinaryen::BinaryenFunctionGetBody(@ref)
+            Expression.new LibBinaryen.BinaryenFunctionGetBody(@ref)
         end
         def name : String
-            String.new LibBinaryen::BinaryenFunctionGetName(@ref)
+            String.new LibBinaryen.BinaryenFunctionGetName(@ref)
         end
         def type : String
-            String.new LibBinaryen::BinaryenFunctionGetType(@ref)
+            String.new LibBinaryen.BinaryenFunctionGetType(@ref)
         end
     end
     struct Import
@@ -650,22 +653,22 @@ module Binaryen
             @ref
         end
         def kind : ExternalKind
-            LibBinaryen::BinaryenImportGetKind(@ref)
+            LibBinaryen.BinaryenImportGetKind(@ref)
         end
         def module : String
-            String.new LibBinaryen::BinaryenImportGetModule(@ref)
+            String.new LibBinaryen.BinaryenImportGetModule(@ref)
         end
         def name : String
-            String.new LibBinaryen::BinaryenImportGetName(@ref)
+            String.new LibBinaryen.BinaryenImportGetName(@ref)
         end
         def internal_name : String
             name
         end
         def function_type : FunctionType
-            @modl.get_function_type LibBinaryen::BinaryenImportGetFunctionType(@ref)
+            @modl.get_function_type LibBinaryen.BinaryenImportGetFunctionType(@ref)
         end
         def base : String
-            String.new LibBinaryen::BinaryenImportGetBase(@ref)
+            String.new LibBinaryen.BinaryenImportGetBase(@ref)
         end
     end
     struct Export
@@ -676,19 +679,19 @@ module Binaryen
             @ref
         end
         def internal_name : String
-            String.new LibBinaryen::BinaryenExportGetName @ref
+            String.new LibBinaryen.BinaryenExportGetName @ref
         end
         def export_name : String
-            String.new LibBinaryen::BinaryenExportGetValue @ref
+            String.new LibBinaryen.BinaryenExportGetValue @ref
         end
         def kind : ExternalKind
-            LibBinaryen::BinaryenExportGetKind @ref
+            LibBinaryen.BinaryenExportGetKind @ref
         end
     end
     struct FunctionTable
         def initialize(@name : String = "_default")
         end
-        getter name : String, functions : Array(Function) = []
+        getter name : String, functions : Array(Function) = [] of Function
     end
     #struct FunctionBuilder
     #    def initialize(modl : Module)
@@ -727,32 +730,33 @@ module Binaryen
             @ref
         end
         struct Block
-            def initialize @ref
+            def initialize(@ref)
             end
             getter ref : LibBinaryen::RelooperBlockRef
             def branch(to : Block, condition : Expression, code : Expression) : Void
-                LibBinaryen::RelooperAddBranch @ref, to, condition, code
+                LibBinaryen.RelooperAddBranch @ref, to, condition, code
             end
             def branch_for_switch(to : Block, 
                                   indexes : Array(UInt32), code : Expression) : Void
-                LibBinaryen::RelooperAddBranchForSwitch @ref, to, indexes, indexes.size.to_u32, code
+                LibBinaryen.RelooperAddBranchForSwitch @ref, to, indexes, indexes.size.to_u32, code
             end
         end
         def add_block(code : Expression) : Block
-            Block.new LibBinaryen::RelooperAddBlock @ref, code
+            Block.new LibBinaryen.RelooperAddBlock @ref, code
         end
         def add_block_with_switch(code : Expression, condition : Expression) : Block
-            Block.new LibBinaryen::RelooperAddBlockWithSwitch @ref, code, condition
+            Block.new LibBinaryen.RelooperAddBlockWithSwitch @ref, code, condition
         end
     end
     class Module
         def initialize(@modl : LibBinaryen::BinaryenModuleRef = Pointer(Void).null)
-            @id = Atomic(UInt32).new(1)
+            @modl ||= LibBinaryen.BinaryenModuleCreate
+            @id = Atomic(UInt32).new(1_u32)
         end
         getter modl : LibBinaryen::BinaryenModuleRef
         # the default table
         getter table : FunctionTable = FunctionTable.new
-        @function_types : Hash(String, FunctionType) = {}
+        @function_types : Hash(String, FunctionType) = {} of String => FunctionType
         def finalize()
             LibBinaryen.BinaryenModuleDispose(@modl)
         end
@@ -762,126 +766,138 @@ module Binaryen
 
         def add_function_type(name : String | Nil, result : Type, 
                 params : Array(Type)) : FunctionType
-            name = name.nil? ? name : "_xrystal_ftype_#{@id.add 1}"
-            f = LibBinaryen::BinaryenAddFunctionType(@modl, name,
+            name ||= "_xrystal_ftype_#{@id.add 1_u32}"
+            f = LibBinaryen.BinaryenAddFunctionType(@modl, name,
                         result, params, params.size.to_u32)
-            @functionType[name] = FunctionType.new name, f, self
+            @function_types[name] = FunctionType.new name, f, self
         end
         def remove_function_type(name : String) : Void
-            LibBinaryen::BinaryenRemoveFunctionType(@modl, name,to_unsafe)
+            LibBinaryen.BinaryenRemoveFunctionType(@modl, name,to_unsafe)
         end
         def remove(ft : FunctionType) : Void
             remove_function_type ft.name
         end
         def get_function_type(name : String)
-            @functionType[name]
+            @function_types[name]
         end
         def get_function_type(result : Type, params : Array(Type))
-            LibBinaryen::BinaryenGetFunctionTypeBySignature @modl, result, params, params.size.to_u32
+            LibBinaryen.BinaryenGetFunctionTypeBySignature @modl, result, params, params.size.to_u32
         end
         def add_function(name : String, type : FunctionType, var_types : Array(Type), 
                         body : Expression)
-            Function.new LibBinaryen::BinaryenAddFunction(@modl, name,
-                        type, var_types, varTypes.size.to_u32, body)
+            Function.new LibBinaryen.BinaryenAddFunction(@modl, name,
+                        type, var_types, var_types.size.to_u32, body)
         end
         def get_function(name : String)
-            Function.new LibBinaryen::BinaryenGetFunction(name)
+            Function.new LibBinaryen.BinaryenGetFunction(name)
         end
         def remove_function(name : String) : Void
-            LibBinaryen::BinaryenRemoveFunction(name)
+            LibBinaryen.BinaryenRemoveFunction(name)
         end
         def remove(func : Function)
             remove_function func.name
         end
         def add_function_import(internal_name : String, external_module : String, 
                                 external_base : String, type : FunctionType) : Import
-            Import.new LibBinaryen::BinaryenAddFunctionImport(@modl, internal_name, external_module,
+            Import.new LibBinaryen.BinaryenAddFunctionImport(@modl, internal_name, external_module,
                         external_base, type), @modl
         end
         ## not support in MVP currently.
         #def add_tabel_import(internal_name : String, external_module : String,
         #                external_base : String) : Import
-        #    Import.new LibBinaryen::BinaryenAddTableImport(@modl, internal_name, external_module,
+        #    Import.new LibBinaryen.BinaryenAddTableImport(@modl, internal_name, external_module,
         #                                                  external_base), @modl
         #end
         ## not support in MVP currently.
         #def add_memory_import(internal_name : String, external_module : String,
         #                external_base : String) : Import
-        #    Import.new LibBinaryen::BinaryenAddMemoryImport(@modl, internal_name, external_module,
+        #    Import.new LibBinaryen.BinaryenAddMemoryImport(@modl, internal_name, external_module,
         #                                                  external_base), @modl
         #end
         def add_global_import(internal_name : String, external_module : String,
                         external_base : String, type : Type) : Import
-            Import.new LibBinaryen::BinaryenAddGlobalImport(@modl, internal_name, external_module,
+            Import.new LibBinaryen.BinaryenAddGlobalImport(@modl, internal_name, external_module,
                                                           external_base, type), @modl
         end
         def remove_import(name : String)
-            LibBinaryen::BinaryenRemoveImport(@modl, name);
+            LibBinaryen.BinaryenRemoveImport(@modl, name);
         end
         def remove(import : Import)
             remove_import(import.name)
         end
         def add_function_export(internal_name : String, external_name : String) : Export
-            Export.new LibBinaryen::BinaryenAddFunctionExport @modl, internal_name, external_name
+            Export.new LibBinaryen.BinaryenAddFunctionExport @modl, internal_name, external_name
         end
         def add_memory_export(internal_name : String, external_name : String) : Export
-            Export.new LibBinaryen::BinaryenAddMemoryExport @modl, internal_name, external_name
+            Export.new LibBinaryen.BinaryenAddMemoryExport @modl, internal_name, external_name
         end
         def add_table_export(internal_name : String, external_name : String) : Export
-            Export.new LibBinaryen::BinaryenAddTableExport @modl, internal_name, external_name
+            Export.new LibBinaryen.BinaryenAddTableExport @modl, internal_name, external_name
         end
         def add_global_export(internal_name : String, external_name : String) : Export
-            Export.new LibBinaryen::BinaryenAddGlobalExport @modl, internal_name, external_name
+            Export.new LibBinaryen.BinaryenAddGlobalExport @modl, internal_name, external_name
         end
         def remove_export(external_name : String)
-            LibBinaryen::BinaryenRemoveExport external_name
+            LibBinaryen.BinaryenRemoveExport external_name
         end
         def remove(export : Export)
             remove_export export.external_name
         end
         def add_global(name : String, type : Type, mutable : Bool, init : Expression)
-            LibBinaryen::BinaryenAddGlobal @modl, name, type, (mutable ? 0_u8 : 1_u8), init
+            LibBinaryen.BinaryenAddGlobal @modl, name, type, (mutable ? 0_u8 : 1_u8), init
         end
 
+        record MemorySettingSegment, data : Bytes, offset : Expression
         record MemorySetting, initial : Int32 = 1, maximum : Int32 = 1, 
-            export_name : String = "default", segments : Array(Bytes)
+            segments : Array(MemorySettingSegment) = [] of MemorySettingSegment, 
+            export_name : String = "default"
         getter memory_setting : MemorySetting = MemorySetting.new
         property start_point : Function?
 
-        struct Codes < Bytes
-            def finalize
-                LibC::free self
+        class Codes
+            def initialize(@data)
             end
+            getter data : Bytes
+            def finalize
+                LibC.free @data
+            end
+            forward_missing_to @data
         end
         def code : Codes?
             @code || compile[0]
         end
         getter source_map : Codes?
         def compile(src_map_url : String? = nil)
-            LibBinaryen::BinaryenSetFunctionTable @modl, @table.functions, @table.functions.size.to_u32
-            LibBinaryen::BinaryenSetMemory @modl, memory_setting.initial, memory_setting.maximum,
-                memory_setting.export_name, memory_setting.segments
-            LibBinaryen::BinaryenSetStart @modl, start_point
+            raise "start point not set" unless start_point
+            LibBinaryen.BinaryenSetStart @modl, start_point.not_nil!
+            LibBinaryen.BinaryenSetFunctionTable @modl, @table.functions.map(&.to_unsafe), 
+                @table.functions.size.to_u32
+            LibBinaryen.BinaryenSetMemory @modl, memory_setting.initial, memory_setting.maximum,
+                memory_setting.export_name, memory_setting.segments.map(&.data.to_unsafe),
+                memory_setting.segments.map(&.offset.to_unsafe),
+                memory_setting.segments.map(&.data.bytesize.to_u32),
+                memory_setting.segments.size.to_u32
             auto_drop
             optimize
-            ret = LibBinaryen::BinaryenModuleAllocateAndWrite @modl, (src_map_url || Pointer(UInt8).NULL)
-            @code, @source_map = Codes.new(ret.binary.as(Pointer(UInt8)), ret.binaryBytes, read_only=true), Codes.new(ret.sourceMap, LibC::strlen(ret.sourceMap))
+            ret = LibBinaryen.BinaryenModuleAllocateAndWrite @modl, (src_map_url || Pointer(UInt8).null)
+            @sourceMap = Codes.new(Bytes.new ret.sourceMap, LibC.strlen(ret.sourceMap), read_only: true) if ret.sourceMap
+            @code = Codes.new(Bytes.new ret.binary.as(Pointer(UInt8)), ret.binaryBytes, read_only: true)
         end
         def write(src_map_url : String? = nil)
             compile src_map_url
         end
         def self.decompile(code : String)
-            Module.new LibBinaryen::BinaryenModuleRead code, code.bytesize
+            Module.new LibBinaryen.BinaryenModuleRead code, code.bytesize
         end
         def self.read(code : String)
             decompile
         end
         def interpret
-            LibBinaryen::BinaryenModuleInterpret @modl
+            LibBinaryen.BinaryenModuleInterpret @modl
         end
 
         def render_and_delete(relooper : Relooper, entry : Relooper::Block, labelHelper : Int) : Expression
-            Expression.new LibBinaryen::RelooperRenderAndDispose relooper, entry, labelHelper, @modl
+            Expression.new LibBinaryen.RelooperRenderAndDispose relooper, entry, labelHelper, @modl
         end
 
         struct DebugInfo
@@ -894,7 +910,7 @@ module Binaryen
                 getter modl
                 alias ID = LibBinaryen::BinaryenIndex
                 def add(file : String) : ID
-                    LibBinaryen::BinaryenModuleAddDebugInfoFileName @modl, file
+                    LibBinaryen.BinaryenModuleAddDebugInfoFileName @modl, file
                 end
                 def <<(file : String)
                     push file
@@ -903,14 +919,14 @@ module Binaryen
                     files.each {|a| push a }
                 end
                 def [](i : Int)
-                    String.new LibBinaryen::BinaryenModuleGetDebugInfoFileName @modl, i.to_u32
+                    String.new LibBinaryen.BinaryenModuleGetDebugInfoFileName @modl, i.to_u32
                 end
             end
             def files
                 Files.new @modl
             end
-            def set(f : Function, expr : Expression, file : Files::ID, line : Int, column : int)
-                LibBinaryen::BinaryenFunctionSetDebugLocation f, expr, file, line. column
+            def set(f : Function, expr : Expression, file : Files::ID, line : Int, column : Int)
+                LibBinaryen.BinaryenFunctionSetDebugLocation f, expr, file, line. column
             end
         end
         def debug
@@ -941,8 +957,7 @@ module Binaryen
         end
         def exp_switch(names : Array(String), default_name : String, 
                   condition : Expression | Nil = nil, value : Expression | Nil = nil) : Expression
-            ps = names.map &
-            default_name = default_name
+            ps = names.map &.to_unsafe
             condition ||= Expression::NULL
             value ||= Expression::NULL
             Expression.new LibBinaryen.BinaryenSwitch(@modl, ps, names.size.to_u32, 
@@ -1006,9 +1021,9 @@ module Binaryen
         def exp_drop(val : Expression) : Expression
             Expression.new LibBinaryen.BinaryenDrop(@modl, val)
         end
-        def exp_return(val : Expression | Nil) : Expression
+        def exp_return(val : Expression | Nil = nil) : Expression
             val = Expression::NULL unless val
-            Expression.new LibBinaryen.BinaryenReturn(val)
+            Expression.new LibBinaryen.BinaryenReturn(@modl, val)
         end
         def exp_host(op : Operation, name : String, 
                      operands : Array(Expression)) : Expression
@@ -1048,56 +1063,56 @@ module Binaryen
         end
 
         def self.parse(s_exp : String) : Module
-            Module.new LibBinaryen::BinaryenModuleParse s_exp
+            Module.new LibBinaryen.BinaryenModuleParse s_exp
         end
         def print
-            LibBinaryen::BinaryenModulePrint @modl
+            LibBinaryen.BinaryenModulePrint @modl
         end
         def print_asmjs
-            LibBinaryen::BinaryenModulePrintAsmjs @modl
+            LibBinaryen.BinaryenModulePrintAsmjs @modl
         end
         def valid : Bool
-            LibBinaryen::BinaryenModuleValidate(@modl) != 0
+            LibBinaryen.BinaryenModuleValidate(@modl) != 0
         end
         def optimize
-            LibBinaryen::BinaryenModuleOptimize @modl
+            LibBinaryen.BinaryenModuleOptimize @modl
         end
         def optimize(f : Function)
-            LibBinaryen::BinaryenFunctionOptimize f, @modl
+            LibBinaryen.BinaryenFunctionOptimize f, @modl
         end
         def run_passes(passes : Array(String))
-            LibBinaryen::BinaryenModuleRunPasses @modl, passes.map(&.to_unsafe), passes.size
+            LibBinaryen.BinaryenModuleRunPasses @modl, passes.map(&.to_unsafe), passes.size
         end
         def run_passes(passes : Array(String), f : Function)
-            LibBinaryen::BinaryenFunctionRunPasses f, @modl, passes(&.to_unsafe), passes.size
+            LibBinaryen.BinaryenFunctionRunPasses f, @modl, passes(&.to_unsafe), passes.size
         end
         def auto_drop
-            LibBinaryen::BinaryenModuleAutoDrop @modl
+            LibBinaryen.BinaryenModuleAutoDrop @modl
         end
     end
     def self.optimize_level : Int
-        LibBinaryen::BinaryenGetOptimizeLevel
+        LibBinaryen.BinaryenGetOptimizeLevel
     end
     def self.optimize_level=(v : Int) : Int
-        LibBinaryen::BinaryenSetOptimizeLevel v
+        LibBinaryen.BinaryenSetOptimizeLevel v
         v
     end
     def self.shrink_level : Int
-        LibBinaryen::BinaryenGetShrinkLevel
+        LibBinaryen.BinaryenGetShrinkLevel
     end
     def self.shrink_level=(v : Int) : Int
-        LibBinaryen::BinaryenSetShrinkLevel v
+        LibBinaryen.BinaryenSetShrinkLevel v
         v
     end
     def self.debug_info : Bool
-        LibBinaryen::BinaryenGetDebugInfo
+        LibBinaryen.BinaryenGetDebugInfo
     end
     def self.debug_info=(v : Bool) : Bool
-        LibBinaryen::BinaryenSetDebugInfo v
+        LibBinaryen.BinaryenSetDebugInfo v
         v
     end
     def self.api_tracing=(on : Bool)
-        LibBinaryen::BinaryenSetAPITracing (on ? 1 : 0)
+        LibBinaryen.BinaryenSetAPITracing (on ? 1 : 0)
     end
 end
 

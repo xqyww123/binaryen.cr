@@ -435,7 +435,7 @@ lib LibBinaryen
     
     # Each segment has data in segments, a start offset in segmentOffsets, and a size in segmentSizes.
     # exportName can be NULL
-    fun BinaryenSetMemory(modl : BinaryenModuleRef, initial : BinaryenIndex, maximum : BinaryenIndex, exportName : Pointer(UInt8), segments : Pointer(UInt8), segmentOffsets : Pointer(BinaryenExpressionRef), segmentSizes : Pointer(BinaryenIndex), numSegments : BinaryenIndex)
+    fun BinaryenSetMemory(modl : BinaryenModuleRef, initial : BinaryenIndex, maximum : BinaryenIndex, exportName : Pointer(UInt8), segments : Pointer(Pointer(UInt8)), segmentOffsets : Pointer(BinaryenExpressionRef), segmentSizes : Pointer(BinaryenIndex), numSegments : BinaryenIndex)
     
     # Start function. One per module
     
