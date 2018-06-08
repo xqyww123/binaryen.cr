@@ -37,6 +37,8 @@ With enough WASM knowledge, `src/binaryen.cr` is clear enough without any commen
 
 Get more information from [Binaryen](https://github.com/WebAssembly/binaryen) C-API ([binaryen-c.h](https://github.com/WebAssembly/binaryen/blob/master/src/binaryen-c.h)) and [WASM design](https://github.com/WebAssembly/design).
 
+Find more example in spec.
+
 ## Contributors
 
 - [[xqyww123]](https://github.com/xqyww123) Shirotsu Essential - creator, maintainer
