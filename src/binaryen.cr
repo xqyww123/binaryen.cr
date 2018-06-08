@@ -7,7 +7,7 @@ module Binaryen
     module Types
         None = LibBinaryen.BinaryenTypeNone()
         Int32= LibBinaryen.BinaryenTypeInt32()
-        Int64= LibBinaryen.BinaryenTypeInt63()
+        Int64= LibBinaryen.BinaryenTypeInt64()
         Float32= LibBinaryen.BinaryenTypeInt32()
         Float64= LibBinaryen.BinaryenTypeInt64()
         Auto = LibBinaryen.BinaryenTypeAuto()
@@ -65,7 +65,7 @@ module Binaryen
         Memory = LibBinaryen.BinaryenExternalMemory()
         Global = LibBinaryen.BinaryenExternalGlobal()
     end
-    Operation = LibBinaryen::BinaryenOp
+    alias Operation = LibBinaryen::BinaryenOp
     module Ops
         ClzInt32 = LibBinaryen.BinaryenClzInt32()
         CtzInt32 = LibBinaryen.BinaryenCtzInt32()
@@ -562,16 +562,15 @@ module Binaryen
 #        end
 #    end
     struct FunctionType
-        def initialize(@name : String, @ftref : LibBinaryen::BinaryenFunctionTypeRef,
+        def initialize(@ftref : LibBinaryen::BinaryenFunctionTypeRef,
                       @modl : Module)
         end
         def to_unsafe
             @ftref
         end
-        getter ftref : LibBinaryen::BinaryenFunctionTypeRef, 
-            name : String, modl : Module
+        getter ftref : LibBinaryen::BinaryenFunctionTypeRef, modl : Module
         def remove
-            @modl.remove_function_type @name
+            @modl.remove_function_type name
         end
         def name
             String.new LibBinaryen.BinaryenFunctionTypeGetName @ftref
@@ -591,7 +590,7 @@ module Binaryen
         def params
             Params.new self
         end
-        def result
+        def result : Type
             LibBinaryen.BinaryenFunctionTypeGetResult @ftref
         end
     end
@@ -649,7 +648,7 @@ module Binaryen
         def initialize(@ref : LibBinaryen::BinaryenImportRef, @modl : Module)
         end
         getter ref : LibBinaryen::BinaryenImportRef, modl : Module
-        def to_unsafe : LibBinaryen::BinaryenExportRef
+        def to_unsafe : LibBinaryen::BinaryenImportRef
             @ref
         end
         def kind : ExternalKind
@@ -665,7 +664,10 @@ module Binaryen
             name
         end
         def function_type : FunctionType
-            @modl.get_function_type LibBinaryen.BinaryenImportGetFunctionType(@ref)
+            @modl.get_function_type String.new LibBinaryen.BinaryenImportGetFunctionType(@ref)
+        end
+        def result_type : Type
+            function_type.result
         end
         def base : String
             String.new LibBinaryen.BinaryenImportGetBase(@ref)
@@ -710,14 +712,14 @@ module Binaryen
             case val
             when Int64
                 LibBinaryen.BinaryenLiteralInt64(val.to_i64)
-            when Int
+            when Int32
                 LibBinaryen.BinaryenLiteralInt32(val.to_i32)
             when Float64
                 LibBinaryen.BinaryenLiteralFloat32(val)
             when Float32
                 LibBinaryen.BinaryenLiteralFloat64(val)
             else
-                raise "Bad type : #{typeof(val.ref)}"
+                raise "Bad type : #{typeof(val)}"
             end
         end
     end
@@ -769,10 +771,11 @@ module Binaryen
             name ||= "_xrystal_ftype_#{@id.add 1_u32}"
             f = LibBinaryen.BinaryenAddFunctionType(@modl, name,
                         result, params, params.size.to_u32)
-            @function_types[name] = FunctionType.new name, f, self
+            @function_types[name] = FunctionType.new f, self
         end
         def remove_function_type(name : String) : Void
-            LibBinaryen.BinaryenRemoveFunctionType(@modl, name,to_unsafe)
+            return unless @function_types.delete name
+            LibBinaryen.BinaryenRemoveFunctionType(@modl, name)
         end
         def remove(ft : FunctionType) : Void
             remove_function_type ft.name
@@ -781,7 +784,7 @@ module Binaryen
             @function_types[name]
         end
         def get_function_type(result : Type, params : Array(Type))
-            LibBinaryen.BinaryenGetFunctionTypeBySignature @modl, result, params, params.size.to_u32
+            FunctionType.new LibBinaryen.BinaryenGetFunctionTypeBySignature(@modl, result, params, params.size.to_u32), self
         end
         def add_function(name : String, type : FunctionType, var_types : Array(Type), 
                         body : Expression)
@@ -800,7 +803,7 @@ module Binaryen
         def add_function_import(internal_name : String, external_module : String, 
                                 external_base : String, type : FunctionType) : Import
             Import.new LibBinaryen.BinaryenAddFunctionImport(@modl, internal_name, external_module,
-                        external_base, type), @modl
+                        external_base, type), self
         end
         ## not support in MVP currently.
         #def add_tabel_import(internal_name : String, external_module : String,
@@ -837,6 +840,9 @@ module Binaryen
         def add_global_export(internal_name : String, external_name : String) : Export
             Export.new LibBinaryen.BinaryenAddGlobalExport @modl, internal_name, external_name
         end
+        def add_export(func : Function, extern_name : String) : Export
+            Export.new LibBinaryen.BinaryenAddFunctionExport @modl, func.name, extern_name
+        end
         def remove_export(external_name : String)
             LibBinaryen.BinaryenRemoveExport external_name
         end
@@ -868,8 +874,9 @@ module Binaryen
         end
         getter source_map : Codes?
         def compile(src_map_url : String? = nil)
-            raise "start point not set" unless start_point
-            LibBinaryen.BinaryenSetStart @modl, start_point.not_nil!
+            if sp = start_point
+                LibBinaryen.BinaryenSetStart @modl, sp
+            end
             LibBinaryen.BinaryenSetFunctionTable @modl, @table.functions.map(&.to_unsafe), 
                 @table.functions.size.to_u32
             LibBinaryen.BinaryenSetMemory @modl, memory_setting.initial, memory_setting.maximum,
@@ -878,7 +885,7 @@ module Binaryen
                 memory_setting.segments.map(&.data.bytesize.to_u32),
                 memory_setting.segments.size.to_u32
             auto_drop
-            optimize
+            #optimize
             ret = LibBinaryen.BinaryenModuleAllocateAndWrite @modl, (src_map_url || Pointer(UInt8).null)
             @sourceMap = Codes.new(Bytes.new ret.sourceMap, LibC.strlen(ret.sourceMap), read_only: true) if ret.sourceMap
             @code = Codes.new(Bytes.new ret.binary.as(Pointer(UInt8)), ret.binaryBytes, read_only: true)
@@ -886,10 +893,10 @@ module Binaryen
         def write(src_map_url : String? = nil)
             compile src_map_url
         end
-        def self.decompile(code : String)
+        def self.decompile(code : Bytes)
             Module.new LibBinaryen.BinaryenModuleRead code, code.bytesize
         end
-        def self.read(code : String)
+        def self.read(code : Bytes)
             decompile
         end
         def interpret
@@ -965,18 +972,25 @@ module Binaryen
         end
         def exp_call(target : String, operands : Array(Expression), 
                      return_type : Type) : Expression
-            Expression.new LibBinaryen.BinaryenCall(@modl, target, operands,
-                        operands.size.to_u32, returnType)
+            Expression.new LibBinaryen.BinaryenCall(@modl, target, 
+                        operands.map(&.to_unsafe), operands.size.to_u32, returnType)
         end
         def exp_call_import(target : String, operands : Array(Expression), 
                      return_type : Type) : Expression
-            Expression.new LibBinaryen.BinaryenCallImport(@modl, target, operands,
-                        operands.size.to_u32, returnType)
+            Expression.new LibBinaryen.BinaryenCallImport(@modl, target, 
+                        operands.map(&.to_unsafe), operands.size.to_u32, return_type)
         end
         def exp_call_indirect(target : Expression, operands : Array(Expression), 
                              type : FunctionType) : Expression
             Expression.new LibBinaryen.BinaryenCallIndirect(@modl, target, operands,
                                               operands.size.to_u32, type.name)
+        end
+        def exp_call(func : Function | Import, operands : Array(Expression)) : Expression
+            if func.is_a? Function
+                exp_call func.name, operands, func.result_type
+            else
+                exp_call_import func.name, operands, func.result_type
+            end
         end
         # TODO : function builder
         def exp_get_local(index : Int, type : Type) : Expression
