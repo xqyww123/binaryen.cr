@@ -1,7 +1,6 @@
 require "atomic"
 require "./binaryen/*"
 
-# TODO: Write documentation for `Binaryen`
 module Binaryen
     alias Type = LibBinaryen::BinaryenType
     module Types
@@ -885,7 +884,7 @@ module Binaryen
                 memory_setting.segments.map(&.data.bytesize.to_u32),
                 memory_setting.segments.size.to_u32
             auto_drop
-            #optimize
+            optimize
             ret = LibBinaryen.BinaryenModuleAllocateAndWrite @modl, (src_map_url || Pointer(UInt8).null)
             @sourceMap = Codes.new(Bytes.new ret.sourceMap, LibC.strlen(ret.sourceMap), read_only: true) if ret.sourceMap
             @code = Codes.new(Bytes.new ret.binary.as(Pointer(UInt8)), ret.binaryBytes, read_only: true)

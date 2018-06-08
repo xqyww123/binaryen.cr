@@ -1,7 +1,6 @@
 require "./spec_helper"
 
 describe Binaryen do
-    # TODO: Write tests
 
     describe Module do
         it "could be created and compile simple code with import, function declaration" do
