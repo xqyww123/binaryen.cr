@@ -1,6 +1,10 @@
-# binaryen
+# binaryen.cr
 
-TODO: Write a description here
+A Crystal binding of [Binaryen](https://github.com/WebAssembly/binaryen).
+
+**WARNING :** lack enough test currently.
+
+However most of bug could be fix quickly. And depending on the huge workload for testing code, I decide to develop my next project using this library (which is a Crystal -> WASM compiler), and test them together. Completely testing will be finished after several weeks I believe. Pull request for testing or bug fix is really appreciated.
 
 ## Installation
 
@@ -9,7 +13,7 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   binaryen:
-    github: [your-github-name]/binaryen
+    github: xqyww123/binaryen.cr
 ```
 
 ## Usage
@@ -18,20 +22,12 @@ dependencies:
 require "binaryen"
 ```
 
-TODO: Write usage instructions here
+Basically warpped from Binaryen C-API by Crystal classes, with some OOP conception such as class `Module` and struct `Function` etc.
 
-## Development
+With enough WASM knowledge, `src/binaryen.cr` is clear enough without any comment.
 
-TODO: Write development instructions here
-
-## Contributing
-
-1. Fork it ( https://github.com/[your-github-name]/binaryen/fork )
-2. Create your feature branch (git checkout -b my-new-feature)
-3. Commit your changes (git commit -am 'Add some feature')
-4. Push to the branch (git push origin my-new-feature)
-5. Create a new Pull Request
+Get more information from [Binaryen](https://github.com/WebAssembly/binaryen) C-API : [binaryen-c.h](https://github.com/WebAssembly/binaryen/blob/master/src/binaryen-c.h) and [WASM design](https://github.com/WebAssembly/design).
 
 ## Contributors
 
-- [[your-github-name]](https://github.com/[your-github-name]) Shirotsu Essential - creator, maintainer
+- [[xqyww123]](https://github.com/xqyww123) Shirotsu Essential - creator, maintainer

@@ -795,7 +795,7 @@ module Binaryen
             Function.new LibBinaryen.BinaryenGetFunction(name)
         end
         def remove_function(name : String) : Void
-            LibBinaryen.BinaryenRemoveFunction(name)
+            LibBinaryen.BinaryenRemoveFunction @modl, name
         end
         def remove(func : Function)
             remove_function func.name

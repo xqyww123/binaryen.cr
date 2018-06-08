@@ -33,6 +33,22 @@ describe Binaryen do
             ft2= mod.get_function_type Types::Int32, [Types::Int64]
             ft2.name.should eq "ooxx"
             mod.remove ft
+            mod.remove ft
+            wasm_dis mod.compile
+        end
+        it "could add / get / remove function, with its property and get / tee local" do
+            mod = Module.new
+            ft1= mod.add_function_type nil, Types::Int32, [Types::Int64, Types::Int32]
+            ft2= mod.add_function_type nil, Types::Int32, [] of Type
+            e0 = mod.exp_get_local 0, Types::Int32
+            e06= mod.exp Ops::ExtendSInt32, e0
+            e1 = mod.exp_get_local 1, Types::Int64
+            emu= mod.exp Ops::MulInt64, e06, e1
+            ete= mod.exp_tee_local 2, emu
+            ead= mod.exp Ops::AddInt64, ete, e1
+            f1 = mod.add_function "foo", ft1, [Types::Int64] of Type, mod.exp_return(ete)
+            f2 = mod.add_function "foo2", ft1, [Types::Int64] of Type, mod.exp_return(e0)
+            mod.remove f2
             wasm_dis mod.compile
         end
     end
