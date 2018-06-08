@@ -1,4 +1,4 @@
-# binaryen.cr
+# Binaryen.cr
 
 A Crystal binding of [Binaryen](https://github.com/WebAssembly/binaryen).
 
@@ -20,13 +20,22 @@ dependencies:
 
 ```crystal
 require "binaryen"
+
+mod = Binaryen::Module.new
+ft = mod.add_function_type "name_of_function_type", Binaryen::Int32, [Binaryen::Int32]
+# add_function_type name, result_type, params_type
+f  = mod.add_function "name_of_function", ft, [Binaryen::Int64], mod.exp_return(mod.exp_get_local 0, Binaryen::Int32)
+# add_function name, function_type, locals type, expression
+mod.start_point = f
+code = mod.compile # => Binaryen::Module::Codes
+File.write "result", code.data # => Bytes
 ```
 
 Basically warpped from Binaryen C-API by Crystal classes, with some OOP conception such as class `Module` and struct `Function` etc.
 
 With enough WASM knowledge, `src/binaryen.cr` is clear enough without any comment.
 
-Get more information from [Binaryen](https://github.com/WebAssembly/binaryen) C-API : [binaryen-c.h](https://github.com/WebAssembly/binaryen/blob/master/src/binaryen-c.h) and [WASM design](https://github.com/WebAssembly/design).
+Get more information from [Binaryen](https://github.com/WebAssembly/binaryen) C-API ([binaryen-c.h](https://github.com/WebAssembly/binaryen/blob/master/src/binaryen-c.h)) and [WASM design](https://github.com/WebAssembly/design).
 
 ## Contributors
 
