@@ -26,7 +26,10 @@ module Binaryen
                 raise "invalid type #{type}"
             end
         end
+        ClassInWASM = {::Int32 => Int32, ::Int64 => Int64, ::Float32 => Float32, ::Float64 => Float64, Nil => None, Void => None, ::UInt32 => Int32, ::UInt64 => Int64 }
+        ClassInCrystal = {Int32 => ::Int32, Int64 => ::Int64, Float32 => ::Float32, Float64 => ::Float64, None => Nil}
     end
+
     module ExpressionIds
         Invalid = LibBinaryen.BinaryenInvalidId()
         Block = LibBinaryen.BinaryenBlockId()
@@ -694,24 +697,12 @@ module Binaryen
         end
         getter name : String, functions : Array(Function) = [] of Function
     end
-    #struct FunctionBuilder
-    #    def initialize(modl : Module)
-    #        @modl = modl
-    #    end
-    #    getter modl : Module, used_local : Int = 0, num_local : Int = 0, max_local : Int = 0
-    #    record LocalVariable, index : UInt32, type : Type
-    #    record Frame, used_local : Array(LocalVariable) = [], free_local : Array(LocalVariable) = []
-    #    record FrameStatus, 
-    #    def block(&b : _ -> _)
-    #        yield
-    #    end
-    #end
     module Tools
         def self.to_literial(val : Int | Float)
             case val
-            when Int64
+            when Int64, UInt64
                 LibBinaryen.BinaryenLiteralInt64(val.to_i64)
-            when Int32
+            when Int32, UInt32
                 LibBinaryen.BinaryenLiteralInt32(val.to_i32)
             when Float64
                 LibBinaryen.BinaryenLiteralFloat32(val)
@@ -719,6 +710,20 @@ module Binaryen
                 LibBinaryen.BinaryenLiteralFloat64(val)
             else
                 raise "Bad type : #{typeof(val)}"
+            end
+        end
+        def self.to_literial(val : Int | Float, type : Type)
+            case type
+            when Types::Int32
+                LibBinaryen.BinaryenLiteralInt32 val.to_i32
+            when Types::Int64
+                LibBinaryen.BinaryenLiteralInt64 val.to_i64
+            when Types::Float32
+                LibBinaryen.BinaryenLiteralFloat32 val.to_f32
+            when Types::Float64
+                LibBinaryen.BinaryenLiteralFloat64 val.to_f64
+            else
+                raise ArgumentError.new "bad type, must indicate a entity type"
             end
         end
     end
@@ -749,6 +754,16 @@ module Binaryen
             Block.new LibBinaryen.RelooperAddBlockWithSwitch @ref, code, condition
         end
     end
+
+    class Codes
+        def initialize(@data)
+        end
+        getter data : Bytes
+        def finalize
+            LibC.free @data
+        end
+        forward_missing_to @data
+    end
     class Module
         def initialize(@modl : LibBinaryen::BinaryenModuleRef = Pointer(Void).null)
             @modl ||= LibBinaryen.BinaryenModuleCreate
@@ -767,10 +782,12 @@ module Binaryen
 
         def add_function_type(name : String | Nil, result : Type, 
                 params : Array(Type)) : FunctionType
-            name ||= "_xrystal_ftype_#{@id.add 1_u32}"
-            f = LibBinaryen.BinaryenAddFunctionType(@modl, name,
-                        result, params, params.size.to_u32)
-            @function_types[name] = FunctionType.new f, self
+            @function_types[name] ||= begin
+                name ||= "_xrystal_ftype_#{@id.add 1_u32}"
+                f = LibBinaryen.BinaryenAddFunctionType(@modl, name,
+                            result, params, params.size.to_u32)
+                FunctionType.new f, self
+                                      end
         end
         def remove_function_type(name : String) : Void
             return unless @function_types.delete name
@@ -850,29 +867,29 @@ module Binaryen
         end
         def add_global(name : String, type : Type, mutable : Bool, init : Expression)
             LibBinaryen.BinaryenAddGlobal @modl, name, type, (mutable ? 0_u8 : 1_u8), init
+            name
         end
 
-        record MemorySettingSegment, data : Bytes, offset : Expression
+        class MemorySettingSegment 
+            property data : Bytes, offset : Expression
+            def initialize(@data, @offset)
+            end
+        end
         record MemorySetting, initial : Int32 = 1, maximum : Int32 = 1, 
             segments : Array(MemorySettingSegment) = [] of MemorySettingSegment, 
             export_name : String = "default"
         getter memory_setting : MemorySetting = MemorySetting.new
         property start_point : Function?
 
-        class Codes
-            def initialize(@data)
-            end
-            getter data : Bytes
-            def finalize
-                LibC.free @data
-            end
-            forward_missing_to @data
+        def compiled?
+            @code
         end
         def code : Codes?
-            @code || compile[0]
+            @code || compile
         end
         getter source_map : Codes?
-        def compile(src_map_url : String? = nil)
+        def compile(*, src_map_url : String? = nil, optimize = true)
+            raise "The module has already been compiled" if @code
             if sp = start_point
                 LibBinaryen.BinaryenSetStart @modl, sp
             end
@@ -884,7 +901,7 @@ module Binaryen
                 memory_setting.segments.map(&.data.bytesize.to_u32),
                 memory_setting.segments.size.to_u32
             auto_drop
-            optimize
+            optimize if optimize
             ret = LibBinaryen.BinaryenModuleAllocateAndWrite @modl, (src_map_url || Pointer(UInt8).null)
             @sourceMap = Codes.new(Bytes.new ret.sourceMap, LibC.strlen(ret.sourceMap), read_only: true) if ret.sourceMap
             @code = Codes.new(Bytes.new ret.binary.as(Pointer(UInt8)), ret.binaryBytes, read_only: true)
@@ -939,15 +956,33 @@ module Binaryen
             DebugInfo.new self
         end
 
-        def exp_block(name : String | Nil, children : Array(Expression), 
-                  type : Type | Nil = Types::Undefine) : Expression
+        def exp_block(name : String?, children : Array(Expression), 
+                  type : Type = Types::Undefined) : Expression
             name = name.nil? ? name : Pointer(UInt8).null
-            Expression.new LibBinaryen.BinaryenBlock(@modl, name, children, 
+            Expression.new LibBinaryen.BinaryenBlock(@modl, name, children.map(&.to_unsafe), 
                                        children.size.to_u32, type)
         end
-        def exp_if(condition : Expression, on_true : Expression, 
-               on_fail : Expression | Nil = nil) : Expression
-            on_fail = Expression::NULL unless on_fail
+        struct BlockBuilder
+            getter block = [] of Expression
+            getter modl : Module
+            def initialize(@modl)
+            end
+            macro method_missing(call)
+              @block << @modl.{{call}}
+            end
+            def <<(o)
+                @block << o
+            end
+        end
+        def exp_block(name : String? = nil, type = Types::Undefined, &block) : Expression
+            builder = BlockBuilder.new self
+            yield builder
+            exp_block name, builder.block, type
+        end
+        def exp_if(condition : Expression, on_true : Expression? = nil, 
+               on_fail : Expression? = nil) : Expression
+            on_fail ||= Expression::NULL
+            on_true ||= exp_nop
             Expression.new LibBinaryen.BinaryenIf(@modl, condition, on_true, on_fail)
         end
         def exp_loop(name : String | Nil, body : Expression) : Expression
@@ -972,7 +1007,7 @@ module Binaryen
         def exp_call(target : String, operands : Array(Expression), 
                      return_type : Type) : Expression
             Expression.new LibBinaryen.BinaryenCall(@modl, target, 
-                        operands.map(&.to_unsafe), operands.size.to_u32, returnType)
+                        operands.map(&.to_unsafe), operands.size.to_u32, return_type)
         end
         def exp_call_import(target : String, operands : Array(Expression), 
                      return_type : Type) : Expression
@@ -983,6 +1018,13 @@ module Binaryen
                              type : FunctionType) : Expression
             Expression.new LibBinaryen.BinaryenCallIndirect(@modl, target, operands,
                                               operands.size.to_u32, type.name)
+        end
+        def exp_call(func : Function | Import, operands : Array(Expression), ret : Type) : Expression
+            if func.is_a? Function
+                exp_call func.name, operands, ret
+            else
+                exp_call_import func.name, operands, ret
+            end
         end
         def exp_call(func : Function | Import, operands : Array(Expression)) : Expression
             if func.is_a? Function
@@ -1001,25 +1043,33 @@ module Binaryen
         def exp_tee_local(index : Int, val : Expression) : Expression
             Expression.new LibBinaryen.BinaryenTeeLocal(@modl, index, val)
         end
-        def exp_get_gloval(name : String, type : Type) : Expression
+        def exp_get_global(name : String, type : Type) : Expression
             Expression.new LibBinaryen.BinaryenGetGlobal(@modl, name, type)
         end
         def exp_set_global(name : String, val : Expression) : Expression
             Expression.new LibBinaryen.BinaryenSetGlobal(@modl, name, val)
         end
-        def exp_load(bytes : Int, signed : Bool, offest : Int, align : Int,
+        def exp_load(bytes : Int, signed : Bool, offset : Int, align : Int,
                     type : Type, ptr : Expression) : Expression
             signed = (signed ? 1_u32 : 0_u32)
             Expression.new LibBinaryen.BinaryenLoad(@modl, bytes.to_u32, signed,
-                    offest.to_u32, align.to_u32, type, ptr)
+                    offset.to_u32, align.to_u32, type, ptr)
+        end
+        def exp_load(offset : Int, type : ::Class, ptr : Expression, align : Int = 0)
+            signed = ( type < Int::Signed ? 1_u32 : 0_u32 )
+            Expression.new LibBinaryen.BinaryenLoad(@modl, type.size.to_u32, signed,
+                    offset.to_u32, align.to_u32, Types::ClassInWASM[type], ptr)
         end
         def exp_store(bytes : Int, offset : Int, align : Int, ptr : Expression, 
                      val : Expression, type : Type) : Expression
-            Expression.new LibBinaryen.BinaryenStore(@modl, bytes.to_u32, align.to_u32,
+            Expression.new LibBinaryen.BinaryenStore(@modl, bytes.to_u32, offset.to_u32, align.to_u32,
                         ptr, val, type)
         end
         def exp_const(val : Int | Float) : Expression
             Expression.new LibBinaryen.BinaryenConst(@modl, Tools.to_literial(val))
+        end
+        def exp_const(val : Int | Float, type : Type) : Expression
+            Expression.new LibBinaryen.BinaryenConst @modl, Tools.to_literial val, type
         end
         def exp(op : Operation, val : Expression) : Expression
             Expression.new LibBinaryen.BinaryenUnary(@modl, op, val)
@@ -1050,7 +1100,7 @@ module Binaryen
             Expression.new LibBinaryen.BinaryenUnreachable(@modl)
         end
         def exp_atomic_load(bytes : Int, offset : Int, type : Type, ptr : Expression) : Expression
-            Expression.new LibBinaryen.BinaryenAtomicLoad(bytes.to_u32, offest.to_u32, type, ptr)
+            Expression.new LibBinaryen.BinaryenAtomicLoad(bytes.to_u32, offset.to_u32, type, ptr)
         end
         def exp_atomic_store(bytes : Int, offset : Int, ptr : Expression, 
                              val : Expression, type : Type) : Expression

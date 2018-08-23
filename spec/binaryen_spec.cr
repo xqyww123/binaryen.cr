@@ -50,6 +50,21 @@ describe Binaryen do
             mod.remove f2
             wasm_dis mod.compile
         end
+        it "could set / load / store (default) linear memory" do
+            mod = Module.new
+            seg = Module::MemorySettingSegment.new Bytes.new(64, 233_u8), mod.exp_const(2048)
+            mod.memory_setting.segments << seg
+            ft = mod.add_function_type nil, Types::None, [] of Type
+            e0 = mod.exp_set_local 0, mod.exp_const(2048)
+            e1 = mod.exp_load 4, true, 32, 0, Types::Int32, mod.exp_get_local(0, Types::Int32)
+            e2 = mod.exp Ops::AddInt32, e1, mod.exp_const(233)
+            e3 = mod.exp_store 4, 32, 0, mod.exp_get_local(0, Types::Int32),
+                e2, Types::Int32
+            f  = mod.add_function "main", ft, [Types::Int32], mod.exp_block(nil,
+                        [e0, e3])
+            mod.start_point = f
+            wasm_dis mod.compile
+        end
     end
 
     describe Expression do
