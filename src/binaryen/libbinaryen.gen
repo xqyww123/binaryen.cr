@@ -1,0 +1,8 @@
+@[Include(
+  "binaryen-c.h",
+  prefix: %w(Binaryen),
+  import_docstrings: "full",
+)]
+@[Link("binaryen")]
+lib LibBinaryen
+end

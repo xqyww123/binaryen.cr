@@ -1,672 +1,648 @@
 @[Link("binaryen")]
 lib LibBinaryen
-    alias BinaryenType = UInt32
-    alias BinaryenIndex = UInt32
-    alias BinaryenExpressionId = UInt32
-    alias BinaryenExternalKind = UInt32
-    alias BinaryenOp = Int32
-    alias BinaryenFunctionTypeRef = Pointer(Void)
-    alias BinaryenExpressionRef = Pointer(Void)
-    alias BinaryenFunctionRef = Pointer(Void)
-    alias BinaryenImportRef = Pointer(Void)
-    alias BinaryenModuleRef = Pointer(Void)
-    union BinaryenLiteralUnion
-        i32 : Int32
-        i64 : Int64
-        f32 : Float32
-        f64 : Float64
-    end
-    struct BinaryenLiteral
-      type : Int32
-      v : BinaryenLiteralUnion
-    end
-
-    fun BinaryenTypeNone() : BinaryenType
-    fun BinaryenTypeInt32() : BinaryenType
-    fun BinaryenTypeInt64() : BinaryenType
-    fun BinaryenTypeFloat32() : BinaryenType
-    fun BinaryenTypeFloat64() : BinaryenType
-    fun BinaryenTypeUnreachable() : BinaryenType
-    fun BinaryenTypeAuto() : BinaryenType
-    fun BinaryenRemoveFunctionType(modl : BinaryenModuleRef, name : Pointer(UInt8))
-    fun BinaryenInvalidId() : BinaryenExpressionId
-    fun BinaryenBlockId() : BinaryenExpressionId
-    fun BinaryenIfId() : BinaryenExpressionId
-    fun BinaryenLoopId() : BinaryenExpressionId
-    fun BinaryenBreakId() : BinaryenExpressionId
-    fun BinaryenSwitchId() : BinaryenExpressionId
-    fun BinaryenCallId() : BinaryenExpressionId
-    fun BinaryenCallImportId() : BinaryenExpressionId
-    fun BinaryenCallIndirectId() : BinaryenExpressionId
-    fun BinaryenGetLocalId() : BinaryenExpressionId
-    fun BinaryenSetLocalId() : BinaryenExpressionId
-    fun BinaryenGetGlobalId() : BinaryenExpressionId
-    fun BinaryenSetGlobalId() : BinaryenExpressionId
-    fun BinaryenLoadId() : BinaryenExpressionId
-    fun BinaryenStoreId() : BinaryenExpressionId
-    fun BinaryenConstId() : BinaryenExpressionId
-    fun BinaryenUnaryId() : BinaryenExpressionId
-    fun BinaryenBinaryId() : BinaryenExpressionId
-    fun BinaryenSelectId() : BinaryenExpressionId
-    fun BinaryenDropId() : BinaryenExpressionId
-    fun BinaryenReturnId() : BinaryenExpressionId
-    fun BinaryenHostId() : BinaryenExpressionId
-    fun BinaryenNopId() : BinaryenExpressionId
-    fun BinaryenUnreachableId() : BinaryenExpressionId
-    fun BinaryenAtomicCmpxchgId() : BinaryenExpressionId
-    fun BinaryenAtomicRMWId() : BinaryenExpressionId
-    fun BinaryenAtomicWaitId() : BinaryenExpressionId
-    fun BinaryenAtomicWakeId() : BinaryenExpressionId
-    fun BinaryenExternalFunction() : BinaryenExternalKind
-    fun BinaryenExternalTable() : BinaryenExternalKind
-    fun BinaryenExternalMemory() : BinaryenExternalKind
-    fun BinaryenExternalGlobal() : BinaryenExternalKind
-    fun BinaryenModuleCreate() : BinaryenModuleRef
-    fun BinaryenModuleDispose(modl : BinaryenModuleRef)
-    fun BinaryenAddFunctionType(modl : BinaryenModuleRef, name : Pointer(UInt8), result : BinaryenType, paramTypes : Pointer(BinaryenType), numParams : BinaryenIndex) : BinaryenFunctionTypeRef
-    fun BinaryenLiteralInt32(x : Int32) : BinaryenLiteral
-    fun BinaryenLiteralInt64(x : Int64) : BinaryenLiteral
-    fun BinaryenLiteralFloat32(x : Float32) : BinaryenLiteral
-    fun BinaryenLiteralFloat64(x : Float64) : BinaryenLiteral
-    fun BinaryenLiteralFloat32Bits(x : Int32) : BinaryenLiteral
-    fun BinaryenLiteralFloat64Bits(x : Int64) : BinaryenLiteral
-    fun BinaryenClzInt32() : BinaryenOp
-    fun BinaryenCtzInt32() : BinaryenOp
-    fun BinaryenPopcntInt32() : BinaryenOp
-    fun BinaryenNegFloat32() : BinaryenOp
-    fun BinaryenAbsFloat32() : BinaryenOp
-    fun BinaryenCeilFloat32() : BinaryenOp
-    fun BinaryenFloorFloat32() : BinaryenOp
-    fun BinaryenTruncFloat32() : BinaryenOp
-    fun BinaryenNearestFloat32() : BinaryenOp
-    fun BinaryenSqrtFloat32() : BinaryenOp
-    fun BinaryenEqZInt32() : BinaryenOp
-    fun BinaryenClzInt64() : BinaryenOp
-    fun BinaryenCtzInt64() : BinaryenOp
-    fun BinaryenPopcntInt64() : BinaryenOp
-    fun BinaryenNegFloat64() : BinaryenOp
-    fun BinaryenAbsFloat64() : BinaryenOp
-    fun BinaryenCeilFloat64() : BinaryenOp
-    fun BinaryenFloorFloat64() : BinaryenOp
-    fun BinaryenTruncFloat64() : BinaryenOp
-    fun BinaryenNearestFloat64() : BinaryenOp
-    fun BinaryenSqrtFloat64() : BinaryenOp
-    fun BinaryenEqZInt64() : BinaryenOp
-    fun BinaryenExtendSInt32() : BinaryenOp
-    fun BinaryenExtendUInt32() : BinaryenOp
-    fun BinaryenWrapInt64() : BinaryenOp
-    fun BinaryenTruncSFloat32ToInt32() : BinaryenOp
-    fun BinaryenTruncSFloat32ToInt64() : BinaryenOp
-    fun BinaryenTruncUFloat32ToInt32() : BinaryenOp
-    fun BinaryenTruncUFloat32ToInt64() : BinaryenOp
-    fun BinaryenTruncSFloat64ToInt32() : BinaryenOp
-    fun BinaryenTruncSFloat64ToInt64() : BinaryenOp
-    fun BinaryenTruncUFloat64ToInt32() : BinaryenOp
-    fun BinaryenTruncUFloat64ToInt64() : BinaryenOp
-    fun BinaryenReinterpretFloat32() : BinaryenOp
-    fun BinaryenReinterpretFloat64() : BinaryenOp
-    fun BinaryenConvertSInt32ToFloat32() : BinaryenOp
-    fun BinaryenConvertSInt32ToFloat64() : BinaryenOp
-    fun BinaryenConvertUInt32ToFloat32() : BinaryenOp
-    fun BinaryenConvertUInt32ToFloat64() : BinaryenOp
-    fun BinaryenConvertSInt64ToFloat32() : BinaryenOp
-    fun BinaryenConvertSInt64ToFloat64() : BinaryenOp
-    fun BinaryenConvertUInt64ToFloat32() : BinaryenOp
-    fun BinaryenConvertUInt64ToFloat64() : BinaryenOp
-    fun BinaryenPromoteFloat32() : BinaryenOp
-    fun BinaryenDemoteFloat64() : BinaryenOp
-    fun BinaryenReinterpretInt32() : BinaryenOp
-    fun BinaryenReinterpretInt64() : BinaryenOp
-    fun BinaryenExtendS8Int32() : BinaryenOp
-    fun BinaryenExtendS16Int32() : BinaryenOp
-    fun BinaryenExtendS8Int64() : BinaryenOp
-    fun BinaryenExtendS16Int64() : BinaryenOp
-    fun BinaryenExtendS32Int64() : BinaryenOp
-    fun BinaryenAddInt32() : BinaryenOp
-    fun BinaryenSubInt32() : BinaryenOp
-    fun BinaryenMulInt32() : BinaryenOp
-    fun BinaryenDivSInt32() : BinaryenOp
-    fun BinaryenDivUInt32() : BinaryenOp
-    fun BinaryenRemSInt32() : BinaryenOp
-    fun BinaryenRemUInt32() : BinaryenOp
-    fun BinaryenAndInt32() : BinaryenOp
-    fun BinaryenOrInt32() : BinaryenOp
-    fun BinaryenXorInt32() : BinaryenOp
-    fun BinaryenShlInt32() : BinaryenOp
-    fun BinaryenShrUInt32() : BinaryenOp
-    fun BinaryenShrSInt32() : BinaryenOp
-    fun BinaryenRotLInt32() : BinaryenOp
-    fun BinaryenRotRInt32() : BinaryenOp
-    fun BinaryenEqInt32() : BinaryenOp
-    fun BinaryenNeInt32() : BinaryenOp
-    fun BinaryenLtSInt32() : BinaryenOp
-    fun BinaryenLtUInt32() : BinaryenOp
-    fun BinaryenLeSInt32() : BinaryenOp
-    fun BinaryenLeUInt32() : BinaryenOp
-    fun BinaryenGtSInt32() : BinaryenOp
-    fun BinaryenGtUInt32() : BinaryenOp
-    fun BinaryenGeSInt32() : BinaryenOp
-    fun BinaryenGeUInt32() : BinaryenOp
-    fun BinaryenAddInt64() : BinaryenOp
-    fun BinaryenSubInt64() : BinaryenOp
-    fun BinaryenMulInt64() : BinaryenOp
-    fun BinaryenDivSInt64() : BinaryenOp
-    fun BinaryenDivUInt64() : BinaryenOp
-    fun BinaryenRemSInt64() : BinaryenOp
-    fun BinaryenRemUInt64() : BinaryenOp
-    fun BinaryenAndInt64() : BinaryenOp
-    fun BinaryenOrInt64() : BinaryenOp
-    fun BinaryenXorInt64() : BinaryenOp
-    fun BinaryenShlInt64() : BinaryenOp
-    fun BinaryenShrUInt64() : BinaryenOp
-    fun BinaryenShrSInt64() : BinaryenOp
-    fun BinaryenRotLInt64() : BinaryenOp
-    fun BinaryenRotRInt64() : BinaryenOp
-    fun BinaryenEqInt64() : BinaryenOp
-    fun BinaryenNeInt64() : BinaryenOp
-    fun BinaryenLtSInt64() : BinaryenOp
-    fun BinaryenLtUInt64() : BinaryenOp
-    fun BinaryenLeSInt64() : BinaryenOp
-    fun BinaryenLeUInt64() : BinaryenOp
-    fun BinaryenGtSInt64() : BinaryenOp
-    fun BinaryenGtUInt64() : BinaryenOp
-    fun BinaryenGeSInt64() : BinaryenOp
-    fun BinaryenGeUInt64() : BinaryenOp
-    fun BinaryenAddFloat32() : BinaryenOp
-    fun BinaryenSubFloat32() : BinaryenOp
-    fun BinaryenMulFloat32() : BinaryenOp
-    fun BinaryenDivFloat32() : BinaryenOp
-    fun BinaryenCopySignFloat32() : BinaryenOp
-    fun BinaryenMinFloat32() : BinaryenOp
-    fun BinaryenMaxFloat32() : BinaryenOp
-    fun BinaryenEqFloat32() : BinaryenOp
-    fun BinaryenNeFloat32() : BinaryenOp
-    fun BinaryenLtFloat32() : BinaryenOp
-    fun BinaryenLeFloat32() : BinaryenOp
-    fun BinaryenGtFloat32() : BinaryenOp
-    fun BinaryenGeFloat32() : BinaryenOp
-    fun BinaryenAddFloat64() : BinaryenOp
-    fun BinaryenSubFloat64() : BinaryenOp
-    fun BinaryenMulFloat64() : BinaryenOp
-    fun BinaryenDivFloat64() : BinaryenOp
-    fun BinaryenCopySignFloat64() : BinaryenOp
-    fun BinaryenMinFloat64() : BinaryenOp
-    fun BinaryenMaxFloat64() : BinaryenOp
-    fun BinaryenEqFloat64() : BinaryenOp
-    fun BinaryenNeFloat64() : BinaryenOp
-    fun BinaryenLtFloat64() : BinaryenOp
-    fun BinaryenLeFloat64() : BinaryenOp
-    fun BinaryenGtFloat64() : BinaryenOp
-    fun BinaryenGeFloat64() : BinaryenOp
-    fun BinaryenPageSize() : BinaryenOp
-    fun BinaryenCurrentMemory() : BinaryenOp
-    fun BinaryenGrowMemory() : BinaryenOp
-    fun BinaryenHasFeature() : BinaryenOp
-    fun BinaryenAtomicRMWAdd() : BinaryenOp
-    fun BinaryenAtomicRMWSub() : BinaryenOp
-    fun BinaryenAtomicRMWAnd() : BinaryenOp
-    fun BinaryenAtomicRMWOr() : BinaryenOp
-    fun BinaryenAtomicRMWXor() : BinaryenOp
-    fun BinaryenAtomicRMWXchg() : BinaryenOp
-    fun BinaryenBlock(modl : BinaryenModuleRef, name : Pointer(UInt8), children : Pointer(BinaryenExpressionRef), numChildren : BinaryenIndex, type : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenIf(modl : BinaryenModuleRef, condition : BinaryenExpressionRef, ifTrue : BinaryenExpressionRef, ifFalse : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenLoop(modl : BinaryenModuleRef, in : Pointer(UInt8), body : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenBreak(modl : BinaryenModuleRef, name : Pointer(UInt8), condition : BinaryenExpressionRef, value : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenSwitch(modl : BinaryenModuleRef, names : Pointer(UInt8), numNames : BinaryenIndex, defaultName : Pointer(UInt8), condition : BinaryenExpressionRef, value : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenCall(modl : BinaryenModuleRef, target : Pointer(UInt8), operands : Pointer(BinaryenExpressionRef), numOperands : BinaryenIndex, returnType : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenCallImport(modl : BinaryenModuleRef, target : Pointer(UInt8), operands : Pointer(BinaryenExpressionRef), numOperands : BinaryenIndex, returnType : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenCallIndirect(modl : BinaryenModuleRef, target : BinaryenExpressionRef, operands : Pointer(BinaryenExpressionRef), numOperands : BinaryenIndex, type : Pointer(UInt8)) : BinaryenExpressionRef
-    fun BinaryenGetLocal(modl : BinaryenModuleRef, index : BinaryenIndex, type : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenSetLocal(modl : BinaryenModuleRef, index : BinaryenIndex, value : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenTeeLocal(modl : BinaryenModuleRef, index : BinaryenIndex, value : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenGetGlobal(modl : BinaryenModuleRef, name : Pointer(UInt8), type : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenSetGlobal(modl : BinaryenModuleRef, name : Pointer(UInt8), value : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenLoad(modl : BinaryenModuleRef, bytes : UInt32, signed : Int8, offest : UInt32, align : UInt32, type : BinaryenType, ptr : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenStore(modl : BinaryenModuleRef, bytes : UInt32, offset : UInt32, align : UInt32, ptr : BinaryenExpressionRef, value : BinaryenExpressionRef, type : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenConst(modl : BinaryenModuleRef, value : BinaryenLiteral) : BinaryenExpressionRef
-    fun BinaryenUnary(modl : BinaryenModuleRef, op : BinaryenOp, value : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenBinary(modl : BinaryenModuleRef, op : BinaryenOp, left : BinaryenExpressionRef, right : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenSelect(modl : BinaryenModuleRef, condition : BinaryenExpressionRef, ifTrue : BinaryenExpressionRef, ifFalse : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenDrop(modl : BinaryenModuleRef, value : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenReturn(modl : BinaryenModuleRef, value : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenHost(modl : BinaryenModuleRef, op : BinaryenOp, name : Pointer(UInt8), operands : Pointer(BinaryenExpressionRef), numOperands : BinaryenIndex) : BinaryenExpressionRef
-    fun BinaryenNop(modl : BinaryenModuleRef) : BinaryenExpressionRef
-    fun BinaryenUnreachable(modl : BinaryenModuleRef) : BinaryenExpressionRef
-    fun BinaryenAtomicLoad(modl : BinaryenModuleRef, bytes : UInt32, offset : UInt32, type : BinaryenType, ptr : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenAtomicStore(modl : BinaryenModuleRef, bytes : UInt32, offset : UInt32, ptr : BinaryenExpressionRef, value : BinaryenExpressionRef, type : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenAtomicRMW(modl : BinaryenModuleRef, op : BinaryenOp, bytes : BinaryenIndex, offset : BinaryenIndex, ptr : BinaryenExpressionRef, value : BinaryenExpressionRef, type : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenAtomicCmpxchg(modl : BinaryenModuleRef, bytes : BinaryenIndex, offset : BinaryenIndex, ptr : BinaryenExpressionRef, expected : BinaryenExpressionRef, replacement : BinaryenExpressionRef, type : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenAtomicWait(modl : BinaryenModuleRef, ptr : BinaryenExpressionRef, expected : BinaryenExpressionRef, timeout : BinaryenExpressionRef, type : BinaryenType) : BinaryenExpressionRef
-    fun BinaryenAtomicWake(modl : BinaryenModuleRef, ptr : BinaryenExpressionRef, wakeCount : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    fun BinaryenExpressionGetId(expr : BinaryenExpressionRef) : BinaryenExpressionId
-    fun BinaryenExpressionGetType(expr : BinaryenExpressionRef) : BinaryenType
-    fun BinaryenExpressionPrint(expr : BinaryenExpressionRef)
-    
-    fun BinaryenBlockGetName(expr : BinaryenExpressionRef) : Pointer(UInt8)
-    fun BinaryenBlockGetNumChildren(expr : BinaryenExpressionRef) : BinaryenIndex
-    fun BinaryenBlockGetChild(expr : BinaryenExpressionRef, index : BinaryenIndex) : BinaryenExpressionRef
-    
-    fun BinaryenIfGetCondition(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenIfGetIfTrue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenIfGetIfFalse(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    fun BinaryenLoopGetName(expr : BinaryenExpressionRef) : Pointer(UInt8)
-    fun BinaryenLoopGetBody(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    fun BinaryenBreakGetName(expr : BinaryenExpressionRef) : Pointer(UInt8)
-    fun BinaryenBreakGetCondition(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenBreakGetValue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    fun BinaryenSwitchGetNumNames(expr : BinaryenExpressionRef) : BinaryenIndex
-    fun BinaryenSwitchGetName(expr : BinaryenExpressionRef, index : BinaryenIndex) : Pointer(UInt8)
-    fun BinaryenSwitchGetDefaultName(expr : BinaryenExpressionRef) : Pointer(UInt8)
-    fun BinaryenSwitchGetCondition(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenSwitchGetValue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    fun BinaryenCallGetTarget(expr : BinaryenExpressionRef) : Pointer(UInt8)
-    fun BinaryenCallGetNumOperands(expr : BinaryenExpressionRef) : BinaryenIndex
-    fun BinaryenCallGetOperand(expr : BinaryenExpressionRef, index : BinaryenIndex) : BinaryenExpressionRef
-    
-    fun BinaryenCallImportGetTarget(expr : BinaryenExpressionRef) : Pointer(UInt8)
-    fun BinaryenCallImportGetNumOperands(expr : BinaryenExpressionRef) : BinaryenIndex
-    fun BinaryenCallImportGetOperand(expr : BinaryenExpressionRef, index : BinaryenIndex) : BinaryenExpressionRef
-    
-    fun BinaryenCallIndirectGetTarget(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenCallIndirectGetNumOperands(expr : BinaryenExpressionRef) : BinaryenIndex
-    fun BinaryenCallIndirectGetOperand(expr : BinaryenExpressionRef, index : BinaryenIndex) : BinaryenExpressionRef
-    
-    fun BinaryenGetLocalGetIndex(expr : BinaryenExpressionRef) : BinaryenIndex
-    
-    fun BinaryenSetLocalIsTee(expr : BinaryenExpressionRef) : LibC::Int
-    fun BinaryenSetLocalGetIndex(expr : BinaryenExpressionRef) : BinaryenIndex
-    fun BinaryenSetLocalGetValue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    fun BinaryenGetGlobalGetName(expr : BinaryenExpressionRef) : Pointer(UInt8)
-    
-    # Gets the name of the specified `SetGlobal` expression.
-    fun BinaryenSetGlobalGetName(expr : BinaryenExpressionRef) : Pointer(UInt8)
-    # Gets the nested value expression within the specified `SetLocal` expression.
-    fun BinaryenSetGlobalGetValue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Gets the operator of the specified `Host` expression.
-    fun BinaryenHostGetOp(expr : BinaryenExpressionRef) : BinaryenOp
-    # Gets the name operand of the specified `Host` expression. May be `NULL`.
-    fun BinaryenHostGetNameOperand(expr : BinaryenExpressionRef) : Pointer(UInt8)
-    # Gets the number of nested operand expressions within the specified `Host` expression.
-    fun BinaryenHostGetNumOperands(expr : BinaryenExpressionRef) : BinaryenIndex
-    # Gets the nested operand expression at the specified index within the specified `Host` expression.
-    fun BinaryenHostGetOperand(expr : BinaryenExpressionRef, index : BinaryenIndex) : BinaryenExpressionRef
-    
-    # Tests if the specified `Load` expression is atomic.
-    fun BinaryenLoadIsAtomic(expr : BinaryenExpressionRef) : LibC::Int
-    # Tests if the specified `Load` expression is signed.
-    fun BinaryenLoadIsSigned(expr : BinaryenExpressionRef) : LibC::Int
-    # Gets the offset of the specified `Load` expression.
-    fun BinaryenLoadGetOffset(expr : BinaryenExpressionRef) : UInt32
-    # Gets the byte size of the specified `Load` expression.
-    fun BinaryenLoadGetBytes(expr : BinaryenExpressionRef) : UInt32
-    # Gets the alignment of the specified `Load` expression.
-    fun BinaryenLoadGetAlign(expr : BinaryenExpressionRef) : UInt32
-    # Gets the nested pointer expression within the specified `Load` expression.
-    fun BinaryenLoadGetPtr(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Tests if the specified `Store` expression is atomic.
-    fun BinaryenStoreIsAtomic(expr : BinaryenExpressionRef) : LibC::Int
-    # Gets the byte size of the specified `Store` expression.
-    fun BinaryenStoreGetBytes(expr : BinaryenExpressionRef) : UInt32
-    # Gets the offset of the specified store expression.
-    fun BinaryenStoreGetOffset(expr : BinaryenExpressionRef) : UInt32
-    # Gets the alignment of the specified `Store` expression.
-    fun BinaryenStoreGetAlign(expr : BinaryenExpressionRef) : UInt32
-    # Gets the nested pointer expression within the specified `Store` expression.
-    fun BinaryenStoreGetPtr(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested value expression within the specified `Store` expression.
-    fun BinaryenStoreGetValue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Gets the 32-bit integer value of the specified `Const` expression.
-    fun BinaryenConstGetValueI32(expr : BinaryenExpressionRef) : Int32
-    # Gets the 64-bit integer value of the specified `Const` expression.
-    fun BinaryenConstGetValueI64(expr : BinaryenExpressionRef) : Int64
-    # Gets the low 32-bits of a 64-bit integer value of the specified `Const` expression. Useful where I64 returning exports are illegal, i.e. binaryen.js.
-    fun BinaryenConstGetValueI64Low(expr : BinaryenExpressionRef) : Int32
-    # Gets the high 32-bits of a 64-bit integer value of the specified `Const` expression. Useful where I64 returning exports are illegal, i.e. binaryen.js.
-    fun BinaryenConstGetValueI64High(expr : BinaryenExpressionRef) : Int32
-    # Gets the 32-bit float value of the specified `Const` expression.
-    fun BinaryenConstGetValueF32(expr : BinaryenExpressionRef) : Float32
-    # Gets the 64-bit float value of the specified `Const` expression.
-    fun BinaryenConstGetValueF64(expr : BinaryenExpressionRef) : Float64
-    
-    # Gets the operator of the specified `Unary` expression.
-    fun BinaryenUnaryGetOp(expr : BinaryenExpressionRef) : BinaryenOp
-    # Gets the nested value expression within the specified `Unary` expression.
-    fun BinaryenUnaryGetValue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Gets the operator of the specified `Binary` expression.
-    fun BinaryenBinaryGetOp(expr : BinaryenExpressionRef) : BinaryenOp
-    # Gets the nested left expression within the specified `Binary` expression.
-    fun BinaryenBinaryGetLeft(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested right expression within the specified `Binary` expression.
-    fun BinaryenBinaryGetRight(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Gets the nested ifTrue expression within the specified `Select` expression.
-    fun BinaryenSelectGetIfTrue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested ifFalse expression within the specified `Select` expression.
-    fun BinaryenSelectGetIfFalse(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested condition expression within the specified `Select` expression.
-    fun BinaryenSelectGetCondition(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Gets the nested value expression within the specified `Drop` expression.
-    fun BinaryenDropGetValue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Gets the nested value expression within the specified `Return` expression.
-    fun BinaryenReturnGetValue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Gets the operator of the specified `AtomicRMW` expression.
-    fun BinaryenAtomicRMWGetOp(expr : BinaryenExpressionRef) : BinaryenOp
-    # Gets the byte size of the specified `AtomicRMW` expression.
-    fun BinaryenAtomicRMWGetBytes(expr : BinaryenExpressionRef) : UInt32
-    # Gets the offset of the specified `AtomicRMW` expression.
-    fun BinaryenAtomicRMWGetOffset(expr : BinaryenExpressionRef) : UInt32
-    # Gets the nested pointer expression within the specified `AtomicRMW` expression.
-    fun BinaryenAtomicRMWGetPtr(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested value expression within the specified `AtomicRMW` expression.
-    fun BinaryenAtomicRMWGetValue(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Gets the byte size of the specified `AtomicCmpxchg` expression.
-    fun BinaryenAtomicCmpxchgGetBytes(expr : BinaryenExpressionRef) : UInt32
-    # Gets the offset of the specified `AtomicCmpxchg` expression.
-    fun BinaryenAtomicCmpxchgGetOffset(expr : BinaryenExpressionRef) : UInt32
-    # Gets the nested pointer expression within the specified `AtomicCmpxchg` expression.
-    fun BinaryenAtomicCmpxchgGetPtr(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested expected value expression within the specified `AtomicCmpxchg` expression.
-    fun BinaryenAtomicCmpxchgGetExpected(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested replacement value expression within the specified `AtomicCmpxchg` expression.
-    fun BinaryenAtomicCmpxchgGetReplacement(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    
-    # Gets the nested pointer expression within the specified `AtomicWait` expression.
-    fun BinaryenAtomicWaitGetPtr(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested expected value expression within the specified `AtomicWait` expression.
-    fun BinaryenAtomicWaitGetExpected(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested timeout expression within the specified `AtomicWait` expression.
-    fun BinaryenAtomicWaitGetTimeout(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the expected type of the specified `AtomicWait` expression.
-    fun BinaryenAtomicWaitGetExpectedType(expr : BinaryenExpressionRef) : BinaryenType
-    
-    # Gets the nested pointer expression within the specified `AtomicWake` expression.
-    fun BinaryenAtomicWakeGetPtr(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    # Gets the nested wake count expression within the specified `AtomicWake` expression.
-    fun BinaryenAtomicWakeGetWakeCount(expr : BinaryenExpressionRef) : BinaryenExpressionRef
-    fun BinaryenAddFunction(modl : BinaryenModuleRef, name : Pointer(UInt8), type : BinaryenFunctionTypeRef, varTypes : Pointer(BinaryenType), numVarTypes : BinaryenIndex, body : BinaryenExpressionRef) : BinaryenFunctionRef
-    
-    # Gets a function reference by name.
-    fun BinaryenGetFunction(modl : BinaryenModuleRef, name : Pointer(UInt8)) : BinaryenFunctionRef
-    
-    # Removes a function by name.
-    fun BinaryenRemoveFunction(modl : BinaryenModuleRef, name : Pointer(UInt8))
-    
-    fun BinaryenAddFunctionImport(modl : BinaryenModuleRef, internalName : Pointer(UInt8), externalModuleName : Pointer(UInt8), externalBaseName : Pointer(UInt8), functionType : BinaryenFunctionTypeRef) : BinaryenImportRef
-    fun BinaryenAddTableImport(modl : BinaryenModuleRef, internalName : Pointer(UInt8), externalModuleName : Pointer(UInt8), externalBaseName : Pointer(UInt8)) : BinaryenImportRef
-    fun BinaryenAddMemoryImport(modl : BinaryenModuleRef, internalName : Pointer(UInt8), externalModuleName : Pointer(UInt8), externalBaseName : Pointer(UInt8)) : BinaryenImportRef
-    fun BinaryenAddGlobalImport(modl : BinaryenModuleRef, internalName : Pointer(UInt8), externalModuleName : Pointer(UInt8), externalBaseName : Pointer(UInt8), globalType : BinaryenType) : BinaryenImportRef
-    fun BinaryenRemoveImport(modl : BinaryenModuleRef, internalName : Pointer(UInt8))
-    
-    # Exports
-    
-    alias BinaryenExportRef = Pointer(Void)
-    
-    fun BinaryenAddFunctionExport(modl : BinaryenModuleRef, internalName : Pointer(UInt8), externalName : Pointer(UInt8)) : BinaryenExportRef
-    fun BinaryenAddTableExport(modl : BinaryenModuleRef, internalName : Pointer(UInt8), externalName : Pointer(UInt8)) : BinaryenExportRef
-    fun BinaryenAddMemoryExport(modl : BinaryenModuleRef, internalName : Pointer(UInt8), externalName : Pointer(UInt8)) : BinaryenExportRef
-    fun BinaryenAddGlobalExport(modl : BinaryenModuleRef, internalName : Pointer(UInt8), externalName : Pointer(UInt8)) : BinaryenExportRef
-    fun BinaryenRemoveExport(modl : BinaryenModuleRef, externalName : Pointer(UInt8))
-    
-    # Globals
-    
-    alias BinaryenGlobalRef = Pointer(Void)
-    
-    fun BinaryenAddGlobal(modl : BinaryenModuleRef, name : Pointer(UInt8), type : BinaryenType, mutable : Int8, init : BinaryenExpressionRef) : BinaryenGlobalRef
-    
-    # Function table. One per module
-    
-    fun BinaryenSetFunctionTable(modl : BinaryenModuleRef, funcs : Pointer(BinaryenFunctionRef), numFuncs : BinaryenIndex)
-    
-    # Memory. One per module
-    
-    # Each segment has data in segments, a start offset in segmentOffsets, and a size in segmentSizes.
-    # exportName can be NULL
-    fun BinaryenSetMemory(modl : BinaryenModuleRef, initial : BinaryenIndex, maximum : BinaryenIndex, exportName : Pointer(UInt8), segments : Pointer(Pointer(UInt8)), segmentOffsets : Pointer(BinaryenExpressionRef), segmentSizes : Pointer(BinaryenIndex), numSegments : BinaryenIndex)
-    
-    # Start function. One per module
-    
-    fun BinaryenSetStart(modl : BinaryenModuleRef, start : BinaryenFunctionRef)
-    
-    #
-    # ========== Module Operations ==========
-    #
-    
-    # Parse a module in s-expression text format
-    fun BinaryenModuleParse(text : Pointer(UInt8)) : BinaryenModuleRef
-    
-    # Print a module to stdout in s-expression text format. Useful for debugging.
-    fun BinaryenModulePrint(modl : BinaryenModuleRef)
-    
-    # Print a module to stdout in asm.js syntax.
-    fun BinaryenModulePrintAsmjs(modl : BinaryenModuleRef)
-    
-    # Validate a module, showing errors on problems.
-    #  @return 0 if an error occurred, 1 if validated succesfully
-    fun BinaryenModuleValidate(modl : BinaryenModuleRef) : LibC::Int
-    
-    # Runs the standard optimization passes on the module. Uses the currently set
-    # global optimize and shrink level.
-    fun BinaryenModuleOptimize(modl : BinaryenModuleRef)
-    
-    # Gets the currently set optimize level. Applies to all modules, globally.
-    # 0, 1, 2 correspond to -O0, -O1, -O2 (default), etc.
-    fun BinaryenGetOptimizeLevel() : LibC::Int
-    
-    # Sets the optimization level to use. Applies to all modules, globally.
-    # 0, 1, 2 correspond to -O0, -O1, -O2 (default), etc.
-    fun BinaryenSetOptimizeLevel(level : LibC::Int)
-    
-    # Gets the currently set shrink level. Applies to all modules, globally.
-    # 0, 1, 2 correspond to -O0, -Os (default), -Oz.
-    fun BinaryenGetShrinkLevel() : LibC::Int
-    
-    # Sets the shrink level to use. Applies to all modules, globally.
-    # 0, 1, 2 correspond to -O0, -Os (default), -Oz.
-    fun BinaryenSetShrinkLevel(level : LibC::Int)
-    
-    # Gets whether generating debug information is currently enabled or not.
-    # Applies to all modules, globally.
-    fun BinaryenGetDebugInfo() : LibC::Int
-    
-    # Enables or disables debug information in emitted binaries.
-    # Applies to all modules, globally.
-    fun BinaryenSetDebugInfo(on : LibC::Int)
-    
-    # Runs the specified passes on the module. Uses the currently set global
-    # optimize and shrink level.
-    fun BinaryenModuleRunPasses(modl : BinaryenModuleRef, passes : Pointer(UInt8), numPasses : BinaryenIndex)
-    
-    # Auto-generate drop() operations where needed. This lets you generate code without
-    # worrying about where they are needed. (It is more efficient to do it yourself,
-    # but simpler to use autodrop).
-    fun BinaryenModuleAutoDrop(modl : BinaryenModuleRef)
-    
-    # Serialize a module into binary form. Uses the currently set global debugInfo option.
-    # @return how many bytes were written. This will be less than or equal to outputSize
-    fun BinaryenModuleWrite(modl : BinaryenModuleRef, output : Pointer(UInt8), outputSize : LibC::SizeT) : LibC::SizeT
-    
-    struct BinaryenBufferSizes
-      outputBytes : LibC::SizeT
-      sourceMapBytes : LibC::SizeT
-    end
-    
-    # Serialize a module into binary form including its source map. Uses the currently set
-    # global debugInfo option.
-    # @returns how many bytes were written. This will be less than or equal to outputSize
-    fun BinaryenModuleWriteWithSourceMap(modl : BinaryenModuleRef, url : Pointer(UInt8), output : Pointer(UInt8), outputSize : LibC::SizeT, sourceMap : Pointer(UInt8), sourceMapSize : LibC::SizeT) : BinaryenBufferSizes
-    
-    # Result structure of BinaryenModuleAllocateAndWrite. Contained buffers have been allocated
-    # using malloc() and the user is expected to free() them manually once not needed anymore.
-    struct BinaryenModuleAllocateAndWriteResult
-      binary : Pointer(Void)
-      binaryBytes : LibC::SizeT
-      sourceMap : Pointer(UInt8)
-    end
-    
-    # Serializes a module into binary form, optionally including its source map if
-    # sourceMapUrl has been specified. Uses the currently set global debugInfo option.
-    # Differs from BinaryenModuleWrite in that it implicitly allocates appropriate buffers
-    # using malloc(), and expects the user to free() them manually once not needed anymore.
-    fun BinaryenModuleAllocateAndWrite(modl : BinaryenModuleRef, sourceMapUrl : Pointer(UInt8)) : BinaryenModuleAllocateAndWriteResult
-    
-    # Deserialize a module from binary form.
-    fun BinaryenModuleRead(input : Pointer(UInt8), inputSize : LibC::SizeT) : BinaryenModuleRef
-    
-    # Execute a module in the Binaryen interpreter. This will create an instance of
-    # the module, run it in the interpreter - which means running the start method -
-    # and then destroying the instance.
-    fun BinaryenModuleInterpret(modl : BinaryenModuleRef)
-    
-    # Adds a debug info file name to the module and returns its index.
-    fun BinaryenModuleAddDebugInfoFileName(modl : BinaryenModuleRef, filename : Pointer(UInt8)) : BinaryenIndex
-    
-    # Gets the name of the debug info file at the specified index. Returns `NULL` if it
-    # does not exist.
-    fun BinaryenModuleGetDebugInfoFileName(modl : BinaryenModuleRef, index : BinaryenIndex) : Pointer(UInt8)
-    
-    #
-    # ======== FunctionType Operations ========
-    #
-    
-    # Gets the name of the specified `FunctionType`.
-    fun BinaryenFunctionTypeGetName(ftype : BinaryenFunctionTypeRef) : Pointer(UInt8)
-    # Gets the number of parameters of the specified `FunctionType`.
-    fun BinaryenFunctionTypeGetNumParams(ftype : BinaryenFunctionTypeRef) : BinaryenIndex
-    # Gets the type of the parameter at the specified index of the specified `FunctionType`.
-    fun BinaryenFunctionTypeGetParam(ftype : BinaryenFunctionTypeRef, index : BinaryenIndex) : BinaryenType
-    # Gets the result type of the specified `FunctionType`.
-    fun BinaryenFunctionTypeGetResult(ftype : BinaryenFunctionTypeRef) : BinaryenType
-    
-    #
-    # ========== Function Operations ==========
-    #
-    
-    # Gets the name of the specified `Function`.
-    fun BinaryenFunctionGetName(func : BinaryenFunctionRef) : Pointer(UInt8)
-    # Gets the name of the `FunctionType` associated with the specified `Function`. May be `NULL` if the signature is implicit.
-    fun BinaryenFunctionGetType(func : BinaryenFunctionRef) : Pointer(UInt8)
-    # Gets the number of parameters of the specified `Function`.
-    fun BinaryenFunctionGetNumParams(func : BinaryenFunctionRef) : BinaryenIndex
-    # Gets the type of the parameter at the specified index of the specified `Function`.
-    fun BinaryenFunctionGetParam(func : BinaryenFunctionRef, index : BinaryenIndex) : BinaryenType
-    # Gets the result type of the specified `Function`.
-    fun BinaryenFunctionGetResult(func : BinaryenFunctionRef) : BinaryenType
-    # Gets the number of additional locals within the specified `Function`.
-    fun BinaryenFunctionGetNumVars(func : BinaryenFunctionRef) : BinaryenIndex
-    # Gets the type of the additional local at the specified index within the specified `Function`.
-    fun BinaryenFunctionGetVar(func : BinaryenFunctionRef, index : BinaryenIndex) : BinaryenType
-    # Gets the body of the specified `Function`.
-    fun BinaryenFunctionGetBody(func : BinaryenFunctionRef) : BinaryenExpressionRef
-    
-    # Runs the standard optimization passes on the function. Uses the currently set
-    # global optimize and shrink level.
-    fun BinaryenFunctionOptimize(func : BinaryenFunctionRef, modl : BinaryenModuleRef)
-    
-    # Runs the specified passes on the function. Uses the currently set global
-    # optimize and shrink level.
-    fun BinaryenFunctionRunPasses(func : BinaryenFunctionRef, modl : BinaryenModuleRef, passes : Pointer(UInt8), numPasses : BinaryenIndex)
-    
-    # Sets the debug location of the specified `Expression` within the specified `Function`.
-    fun BinaryenFunctionSetDebugLocation(func : BinaryenFunctionRef, expr : BinaryenExpressionRef, fileIndex : BinaryenIndex, lineNumber : BinaryenIndex, columnNumber : BinaryenIndex)
-    
-    #
-    # ========== Import Operations ==========
-    #
-    
-    # Gets the external kind of the specified import.
-    fun BinaryenImportGetKind(import : BinaryenImportRef) : BinaryenExternalKind
-    # Gets the external module name of the specified import.
-    fun BinaryenImportGetModule(import : BinaryenImportRef) : Pointer(UInt8)
-    # Gets the external base name of the specified import.
-    fun BinaryenImportGetBase(import : BinaryenImportRef) : Pointer(UInt8)
-    # Gets the internal name of the specified import.
-    fun BinaryenImportGetName(import : BinaryenImportRef) : Pointer(UInt8)
-    # Gets the type of the imported global, if referencing a `Global`.
-    fun BinaryenImportGetGlobalType(import : BinaryenImportRef) : BinaryenType
-    # Gets the name of the function type of the imported function, if referencing a `Function`.
-    fun BinaryenImportGetFunctionType(import : BinaryenImportRef) : Pointer(UInt8)
-    
-    #
-    # ========== Export Operations ==========
-    #
-    
-    # Gets the external kind of the specified export.
-    fun BinaryenExportGetKind(export : BinaryenExportRef) : BinaryenExternalKind
-    # Gets the external name of the specified export.
-    fun BinaryenExportGetName(export : BinaryenExportRef) : Pointer(UInt8)
-    # Gets the internal name of the specified export.
-    fun BinaryenExportGetValue(export : BinaryenExportRef) : Pointer(UInt8)
-    
-    #
-    # ========== CFG / Relooper ==========
-    #
-    # General usage is (1) create a relooper, (2) create blocks, (3) add
-    # branches between them, (4) render the output.
-    #
-    # See Relooper.h for more details
-    
-    alias RelooperRef = Pointer(Void)
-    alias RelooperBlockRef = Pointer(Void)
-    
-    # Create a relooper instance
-    fun RelooperCreate() : RelooperRef
-    
-    # Create a basic block that ends with nothing, or with some simple branching
-    fun RelooperAddBlock(relooper : RelooperRef, code : BinaryenExpressionRef) : RelooperBlockRef
-    
-    # Create a branch to another basic block
-    # The branch can have code on it, that is executed as the branch happens. this is useful for phis. otherwise, code can be NULL
-    fun RelooperAddBranch(from : RelooperBlockRef, to : RelooperBlockRef, condition : BinaryenExpressionRef, code : BinaryenExpressionRef)
-    
-    # Create a basic block that ends a switch on a condition
-    fun RelooperAddBlockWithSwitch(relooper : RelooperRef, code : BinaryenExpressionRef, condition : BinaryenExpressionRef) : RelooperBlockRef
-    
-    # Create a switch-style branch to another basic block. The block's switch table will have these indexes going to that target
-    fun RelooperAddBranchForSwitch(from : RelooperBlockRef, to : RelooperBlockRef, indexes : Pointer(BinaryenIndex), numIndexes : BinaryenIndex, code : BinaryenExpressionRef)
-    
-    # Generate structed wasm control flow from the CFG of blocks and branches that were created
-    # on this relooper instance. This returns the rendered output, and also disposes of the
-    # relooper and its blocks and branches, as they are no longer needed.
-    #   @param labelHelper To render irreducible control flow, we may need a helper variable to
-    #                      guide us to the right target label. This value should be an index of
-    #                      an i32 local variable that is free for us to use.
-    fun RelooperRenderAndDispose(relooper : RelooperRef, entry : RelooperBlockRef, labelHelper : BinaryenIndex, modl : BinaryenModuleRef) : BinaryenExpressionRef
-    
-    #
-    # ========= Other APIs =========
-    #
-    
-    # Sets whether API tracing is on or off. It is off by default. When on, each call
-    # to an API method will print out C code equivalent to it, which is useful for
-    # auto-generating standalone testcases from projects using the API.
-    # When calling this to turn on tracing, the prelude of the full program is printed,
-    # and when calling it to turn it off, the ending of the program is printed, giving
-    # you the full compilable testcase.
-    # TODO: compile-time option to enable/disable this feature entirely at build time?
-    fun BinaryenSetAPITracing(on : LibC::Int)
-    
-    #
-    # ========= Utilities =========
-    #
-    
-    # Note that this function has been added because there is no better alternative
-    # currently and is scheduled for removal once there is one. It takes the same set
-    # of parameters as BinaryenAddFunctionType but instead of adding a new function
-    # signature, it returns a pointer to the existing signature or NULL if there is no
-    # such signature yet.
-    fun BinaryenGetFunctionTypeBySignature(modl : BinaryenModuleRef, result : BinaryenType, paramTypes : Pointer(BinaryenType), numParams : BinaryenIndex) : BinaryenFunctionTypeRef
+  fun type_none = BinaryenTypeNone : Type
+  alias X__Uint32T = LibC::UInt
+  alias Uint32T = X__Uint32T
+  alias Type = Uint32T
+  fun type_int32 = BinaryenTypeInt32 : Type
+  fun type_int64 = BinaryenTypeInt64 : Type
+  fun type_float32 = BinaryenTypeFloat32 : Type
+  fun type_float64 = BinaryenTypeFloat64 : Type
+  fun type_vec128 = BinaryenTypeVec128 : Type
+  fun type_exnref = BinaryenTypeExnref : Type
+  fun type_unreachable = BinaryenTypeUnreachable : Type
+  fun type_auto = BinaryenTypeAuto : Type
+  fun none = BinaryenNone : Type
+  fun int32 = BinaryenInt32 : Type
+  fun int64 = BinaryenInt64 : Type
+  fun float32 = BinaryenFloat32 : Type
+  fun float64 = BinaryenFloat64 : Type
+  fun undefined = BinaryenUndefined : Type
+  fun invalid_id = BinaryenInvalidId : ExpressionId
+  alias ExpressionId = Uint32T
+  fun block_id = BinaryenBlockId : ExpressionId
+  fun if_id = BinaryenIfId : ExpressionId
+  fun loop_id = BinaryenLoopId : ExpressionId
+  fun break_id = BinaryenBreakId : ExpressionId
+  fun switch_id = BinaryenSwitchId : ExpressionId
+  fun call_id = BinaryenCallId : ExpressionId
+  fun call_indirect_id = BinaryenCallIndirectId : ExpressionId
+  fun local_get_id = BinaryenLocalGetId : ExpressionId
+  fun local_set_id = BinaryenLocalSetId : ExpressionId
+  fun global_get_id = BinaryenGlobalGetId : ExpressionId
+  fun global_set_id = BinaryenGlobalSetId : ExpressionId
+  fun load_id = BinaryenLoadId : ExpressionId
+  fun store_id = BinaryenStoreId : ExpressionId
+  fun const_id = BinaryenConstId : ExpressionId
+  fun unary_id = BinaryenUnaryId : ExpressionId
+  fun binary_id = BinaryenBinaryId : ExpressionId
+  fun select_id = BinaryenSelectId : ExpressionId
+  fun drop_id = BinaryenDropId : ExpressionId
+  fun return_id = BinaryenReturnId : ExpressionId
+  fun host_id = BinaryenHostId : ExpressionId
+  fun nop_id = BinaryenNopId : ExpressionId
+  fun unreachable_id = BinaryenUnreachableId : ExpressionId
+  fun atomic_cmpxchg_id = BinaryenAtomicCmpxchgId : ExpressionId
+  fun atomic_rmw_id = BinaryenAtomicRMWId : ExpressionId
+  fun atomic_wait_id = BinaryenAtomicWaitId : ExpressionId
+  fun atomic_notify_id = BinaryenAtomicNotifyId : ExpressionId
+  fun simd_extract_id = BinaryenSIMDExtractId : ExpressionId
+  fun simd_replace_id = BinaryenSIMDReplaceId : ExpressionId
+  fun simd_shuffle_id = BinaryenSIMDShuffleId : ExpressionId
+  fun simd_bitselect_id = BinaryenSIMDBitselectId : ExpressionId
+  fun simd_shift_id = BinaryenSIMDShiftId : ExpressionId
+  fun memory_init_id = BinaryenMemoryInitId : ExpressionId
+  fun data_drop_id = BinaryenDataDropId : ExpressionId
+  fun memory_copy_id = BinaryenMemoryCopyId : ExpressionId
+  fun memory_fill_id = BinaryenMemoryFillId : ExpressionId
+  fun try_id = BinaryenTryId : ExpressionId
+  fun throw_id = BinaryenThrowId : ExpressionId
+  fun rethrow_id = BinaryenRethrowId : ExpressionId
+  fun br_on_exn_id = BinaryenBrOnExnId : ExpressionId
+  fun push_id = BinaryenPushId : ExpressionId
+  fun pop_id = BinaryenPopId : ExpressionId
+  fun external_function = BinaryenExternalFunction : ExternalKind
+  alias ExternalKind = Uint32T
+  fun external_table = BinaryenExternalTable : ExternalKind
+  fun external_memory = BinaryenExternalMemory : ExternalKind
+  fun external_global = BinaryenExternalGlobal : ExternalKind
+  fun external_event = BinaryenExternalEvent : ExternalKind
+  fun feature_mvp = BinaryenFeatureMVP : Features
+  alias Features = Uint32T
+  fun feature_atomics = BinaryenFeatureAtomics : Features
+  fun feature_bulk_memory = BinaryenFeatureBulkMemory : Features
+  fun feature_mutable_globals = BinaryenFeatureMutableGlobals : Features
+  fun feature_nontrapping_fp_to_int = BinaryenFeatureNontrappingFPToInt : Features
+  fun feature_sign_ext = BinaryenFeatureSignExt : Features
+  fun feature_simd128 = BinaryenFeatureSIMD128 : Features
+  fun feature_exception_handling = BinaryenFeatureExceptionHandling : Features
+  fun feature_all = BinaryenFeatureAll : Features
+  fun module_create = BinaryenModuleCreate : ModuleRef
+  alias ModuleRef = Void*
+  fun module_dispose = BinaryenModuleDispose(module : ModuleRef)
+  fun add_function_type = BinaryenAddFunctionType(module : ModuleRef, name : LibC::Char*, result : Type, param_types : Type*, num_params : Index) : FunctionTypeRef
+  alias Index = Uint32T
+  alias FunctionTypeRef = Void*
+  fun remove_function_type = BinaryenRemoveFunctionType(module : ModuleRef, name : LibC::Char*)
+  struct Literal
+    type : Int32T
+  end
+  alias X__Int32T = LibC::Int
+  alias Int32T = X__Int32T
+  fun literal_int32 = BinaryenLiteralInt32(x : Int32T) : Literal
+  fun literal_int64 = BinaryenLiteralInt64(x : Int64T) : Literal
+  alias X__Int64T = LibC::Long
+  alias Int64T = X__Int64T
+  fun literal_float32 = BinaryenLiteralFloat32(x : LibC::Float) : Literal
+  fun literal_float64 = BinaryenLiteralFloat64(x : LibC::Double) : Literal
+  fun literal_vec128 = BinaryenLiteralVec128(x : Uint8T[16]) : Literal
+  alias X__Uint8T = UInt8
+  alias Uint8T = X__Uint8T
+  fun literal_float32_bits = BinaryenLiteralFloat32Bits(x : Int32T) : Literal
+  fun literal_float64_bits = BinaryenLiteralFloat64Bits(x : Int64T) : Literal
+  fun clz_int32 = BinaryenClzInt32 : Op
+  alias Op = Int32T
+  fun ctz_int32 = BinaryenCtzInt32 : Op
+  fun popcnt_int32 = BinaryenPopcntInt32 : Op
+  fun neg_float32 = BinaryenNegFloat32 : Op
+  fun abs_float32 = BinaryenAbsFloat32 : Op
+  fun ceil_float32 = BinaryenCeilFloat32 : Op
+  fun floor_float32 = BinaryenFloorFloat32 : Op
+  fun trunc_float32 = BinaryenTruncFloat32 : Op
+  fun nearest_float32 = BinaryenNearestFloat32 : Op
+  fun sqrt_float32 = BinaryenSqrtFloat32 : Op
+  fun eq_z_int32 = BinaryenEqZInt32 : Op
+  fun clz_int64 = BinaryenClzInt64 : Op
+  fun ctz_int64 = BinaryenCtzInt64 : Op
+  fun popcnt_int64 = BinaryenPopcntInt64 : Op
+  fun neg_float64 = BinaryenNegFloat64 : Op
+  fun abs_float64 = BinaryenAbsFloat64 : Op
+  fun ceil_float64 = BinaryenCeilFloat64 : Op
+  fun floor_float64 = BinaryenFloorFloat64 : Op
+  fun trunc_float64 = BinaryenTruncFloat64 : Op
+  fun nearest_float64 = BinaryenNearestFloat64 : Op
+  fun sqrt_float64 = BinaryenSqrtFloat64 : Op
+  fun eq_z_int64 = BinaryenEqZInt64 : Op
+  fun extend_s_int32 = BinaryenExtendSInt32 : Op
+  fun extend_u_int32 = BinaryenExtendUInt32 : Op
+  fun wrap_int64 = BinaryenWrapInt64 : Op
+  fun trunc_s_float32_to_int32 = BinaryenTruncSFloat32ToInt32 : Op
+  fun trunc_s_float32_to_int64 = BinaryenTruncSFloat32ToInt64 : Op
+  fun trunc_u_float32_to_int32 = BinaryenTruncUFloat32ToInt32 : Op
+  fun trunc_u_float32_to_int64 = BinaryenTruncUFloat32ToInt64 : Op
+  fun trunc_s_float64_to_int32 = BinaryenTruncSFloat64ToInt32 : Op
+  fun trunc_s_float64_to_int64 = BinaryenTruncSFloat64ToInt64 : Op
+  fun trunc_u_float64_to_int32 = BinaryenTruncUFloat64ToInt32 : Op
+  fun trunc_u_float64_to_int64 = BinaryenTruncUFloat64ToInt64 : Op
+  fun reinterpret_float32 = BinaryenReinterpretFloat32 : Op
+  fun reinterpret_float64 = BinaryenReinterpretFloat64 : Op
+  fun convert_s_int32_to_float32 = BinaryenConvertSInt32ToFloat32 : Op
+  fun convert_s_int32_to_float64 = BinaryenConvertSInt32ToFloat64 : Op
+  fun convert_u_int32_to_float32 = BinaryenConvertUInt32ToFloat32 : Op
+  fun convert_u_int32_to_float64 = BinaryenConvertUInt32ToFloat64 : Op
+  fun convert_s_int64_to_float32 = BinaryenConvertSInt64ToFloat32 : Op
+  fun convert_s_int64_to_float64 = BinaryenConvertSInt64ToFloat64 : Op
+  fun convert_u_int64_to_float32 = BinaryenConvertUInt64ToFloat32 : Op
+  fun convert_u_int64_to_float64 = BinaryenConvertUInt64ToFloat64 : Op
+  fun promote_float32 = BinaryenPromoteFloat32 : Op
+  fun demote_float64 = BinaryenDemoteFloat64 : Op
+  fun reinterpret_int32 = BinaryenReinterpretInt32 : Op
+  fun reinterpret_int64 = BinaryenReinterpretInt64 : Op
+  fun extend_s8_int32 = BinaryenExtendS8Int32 : Op
+  fun extend_s16_int32 = BinaryenExtendS16Int32 : Op
+  fun extend_s8_int64 = BinaryenExtendS8Int64 : Op
+  fun extend_s16_int64 = BinaryenExtendS16Int64 : Op
+  fun extend_s32_int64 = BinaryenExtendS32Int64 : Op
+  fun add_int32 = BinaryenAddInt32 : Op
+  fun sub_int32 = BinaryenSubInt32 : Op
+  fun mul_int32 = BinaryenMulInt32 : Op
+  fun div_s_int32 = BinaryenDivSInt32 : Op
+  fun div_u_int32 = BinaryenDivUInt32 : Op
+  fun rem_s_int32 = BinaryenRemSInt32 : Op
+  fun rem_u_int32 = BinaryenRemUInt32 : Op
+  fun and_int32 = BinaryenAndInt32 : Op
+  fun or_int32 = BinaryenOrInt32 : Op
+  fun xor_int32 = BinaryenXorInt32 : Op
+  fun shl_int32 = BinaryenShlInt32 : Op
+  fun shr_u_int32 = BinaryenShrUInt32 : Op
+  fun shr_s_int32 = BinaryenShrSInt32 : Op
+  fun rot_l_int32 = BinaryenRotLInt32 : Op
+  fun rot_r_int32 = BinaryenRotRInt32 : Op
+  fun eq_int32 = BinaryenEqInt32 : Op
+  fun ne_int32 = BinaryenNeInt32 : Op
+  fun lt_s_int32 = BinaryenLtSInt32 : Op
+  fun lt_u_int32 = BinaryenLtUInt32 : Op
+  fun le_s_int32 = BinaryenLeSInt32 : Op
+  fun le_u_int32 = BinaryenLeUInt32 : Op
+  fun gt_s_int32 = BinaryenGtSInt32 : Op
+  fun gt_u_int32 = BinaryenGtUInt32 : Op
+  fun ge_s_int32 = BinaryenGeSInt32 : Op
+  fun ge_u_int32 = BinaryenGeUInt32 : Op
+  fun add_int64 = BinaryenAddInt64 : Op
+  fun sub_int64 = BinaryenSubInt64 : Op
+  fun mul_int64 = BinaryenMulInt64 : Op
+  fun div_s_int64 = BinaryenDivSInt64 : Op
+  fun div_u_int64 = BinaryenDivUInt64 : Op
+  fun rem_s_int64 = BinaryenRemSInt64 : Op
+  fun rem_u_int64 = BinaryenRemUInt64 : Op
+  fun and_int64 = BinaryenAndInt64 : Op
+  fun or_int64 = BinaryenOrInt64 : Op
+  fun xor_int64 = BinaryenXorInt64 : Op
+  fun shl_int64 = BinaryenShlInt64 : Op
+  fun shr_u_int64 = BinaryenShrUInt64 : Op
+  fun shr_s_int64 = BinaryenShrSInt64 : Op
+  fun rot_l_int64 = BinaryenRotLInt64 : Op
+  fun rot_r_int64 = BinaryenRotRInt64 : Op
+  fun eq_int64 = BinaryenEqInt64 : Op
+  fun ne_int64 = BinaryenNeInt64 : Op
+  fun lt_s_int64 = BinaryenLtSInt64 : Op
+  fun lt_u_int64 = BinaryenLtUInt64 : Op
+  fun le_s_int64 = BinaryenLeSInt64 : Op
+  fun le_u_int64 = BinaryenLeUInt64 : Op
+  fun gt_s_int64 = BinaryenGtSInt64 : Op
+  fun gt_u_int64 = BinaryenGtUInt64 : Op
+  fun ge_s_int64 = BinaryenGeSInt64 : Op
+  fun ge_u_int64 = BinaryenGeUInt64 : Op
+  fun add_float32 = BinaryenAddFloat32 : Op
+  fun sub_float32 = BinaryenSubFloat32 : Op
+  fun mul_float32 = BinaryenMulFloat32 : Op
+  fun div_float32 = BinaryenDivFloat32 : Op
+  fun copy_sign_float32 = BinaryenCopySignFloat32 : Op
+  fun min_float32 = BinaryenMinFloat32 : Op
+  fun max_float32 = BinaryenMaxFloat32 : Op
+  fun eq_float32 = BinaryenEqFloat32 : Op
+  fun ne_float32 = BinaryenNeFloat32 : Op
+  fun lt_float32 = BinaryenLtFloat32 : Op
+  fun le_float32 = BinaryenLeFloat32 : Op
+  fun gt_float32 = BinaryenGtFloat32 : Op
+  fun ge_float32 = BinaryenGeFloat32 : Op
+  fun add_float64 = BinaryenAddFloat64 : Op
+  fun sub_float64 = BinaryenSubFloat64 : Op
+  fun mul_float64 = BinaryenMulFloat64 : Op
+  fun div_float64 = BinaryenDivFloat64 : Op
+  fun copy_sign_float64 = BinaryenCopySignFloat64 : Op
+  fun min_float64 = BinaryenMinFloat64 : Op
+  fun max_float64 = BinaryenMaxFloat64 : Op
+  fun eq_float64 = BinaryenEqFloat64 : Op
+  fun ne_float64 = BinaryenNeFloat64 : Op
+  fun lt_float64 = BinaryenLtFloat64 : Op
+  fun le_float64 = BinaryenLeFloat64 : Op
+  fun gt_float64 = BinaryenGtFloat64 : Op
+  fun ge_float64 = BinaryenGeFloat64 : Op
+  fun memory_size = BinaryenMemorySize : Op
+  fun memory_grow = BinaryenMemoryGrow : Op
+  fun atomic_rmw_add = BinaryenAtomicRMWAdd : Op
+  fun atomic_rmw_sub = BinaryenAtomicRMWSub : Op
+  fun atomic_rmw_and = BinaryenAtomicRMWAnd : Op
+  fun atomic_rmw_or = BinaryenAtomicRMWOr : Op
+  fun atomic_rmw_xor = BinaryenAtomicRMWXor : Op
+  fun atomic_rmw_xchg = BinaryenAtomicRMWXchg : Op
+  fun trunc_sat_s_float32_to_int32 = BinaryenTruncSatSFloat32ToInt32 : Op
+  fun trunc_sat_s_float32_to_int64 = BinaryenTruncSatSFloat32ToInt64 : Op
+  fun trunc_sat_u_float32_to_int32 = BinaryenTruncSatUFloat32ToInt32 : Op
+  fun trunc_sat_u_float32_to_int64 = BinaryenTruncSatUFloat32ToInt64 : Op
+  fun trunc_sat_s_float64_to_int32 = BinaryenTruncSatSFloat64ToInt32 : Op
+  fun trunc_sat_s_float64_to_int64 = BinaryenTruncSatSFloat64ToInt64 : Op
+  fun trunc_sat_u_float64_to_int32 = BinaryenTruncSatUFloat64ToInt32 : Op
+  fun trunc_sat_u_float64_to_int64 = BinaryenTruncSatUFloat64ToInt64 : Op
+  fun splat_vec_i8x16 = BinaryenSplatVecI8x16 : Op
+  fun extract_lane_s_vec_i8x16 = BinaryenExtractLaneSVecI8x16 : Op
+  fun extract_lane_u_vec_i8x16 = BinaryenExtractLaneUVecI8x16 : Op
+  fun replace_lane_vec_i8x16 = BinaryenReplaceLaneVecI8x16 : Op
+  fun splat_vec_i16x8 = BinaryenSplatVecI16x8 : Op
+  fun extract_lane_s_vec_i16x8 = BinaryenExtractLaneSVecI16x8 : Op
+  fun extract_lane_u_vec_i16x8 = BinaryenExtractLaneUVecI16x8 : Op
+  fun replace_lane_vec_i16x8 = BinaryenReplaceLaneVecI16x8 : Op
+  fun splat_vec_i32x4 = BinaryenSplatVecI32x4 : Op
+  fun extract_lane_vec_i32x4 = BinaryenExtractLaneVecI32x4 : Op
+  fun replace_lane_vec_i32x4 = BinaryenReplaceLaneVecI32x4 : Op
+  fun splat_vec_i64x2 = BinaryenSplatVecI64x2 : Op
+  fun extract_lane_vec_i64x2 = BinaryenExtractLaneVecI64x2 : Op
+  fun replace_lane_vec_i64x2 = BinaryenReplaceLaneVecI64x2 : Op
+  fun splat_vec_f32x4 = BinaryenSplatVecF32x4 : Op
+  fun extract_lane_vec_f32x4 = BinaryenExtractLaneVecF32x4 : Op
+  fun replace_lane_vec_f32x4 = BinaryenReplaceLaneVecF32x4 : Op
+  fun splat_vec_f64x2 = BinaryenSplatVecF64x2 : Op
+  fun extract_lane_vec_f64x2 = BinaryenExtractLaneVecF64x2 : Op
+  fun replace_lane_vec_f64x2 = BinaryenReplaceLaneVecF64x2 : Op
+  fun eq_vec_i8x16 = BinaryenEqVecI8x16 : Op
+  fun ne_vec_i8x16 = BinaryenNeVecI8x16 : Op
+  fun lt_s_vec_i8x16 = BinaryenLtSVecI8x16 : Op
+  fun lt_u_vec_i8x16 = BinaryenLtUVecI8x16 : Op
+  fun gt_s_vec_i8x16 = BinaryenGtSVecI8x16 : Op
+  fun gt_u_vec_i8x16 = BinaryenGtUVecI8x16 : Op
+  fun le_s_vec_i8x16 = BinaryenLeSVecI8x16 : Op
+  fun le_u_vec_i8x16 = BinaryenLeUVecI8x16 : Op
+  fun ge_s_vec_i8x16 = BinaryenGeSVecI8x16 : Op
+  fun ge_u_vec_i8x16 = BinaryenGeUVecI8x16 : Op
+  fun eq_vec_i16x8 = BinaryenEqVecI16x8 : Op
+  fun ne_vec_i16x8 = BinaryenNeVecI16x8 : Op
+  fun lt_s_vec_i16x8 = BinaryenLtSVecI16x8 : Op
+  fun lt_u_vec_i16x8 = BinaryenLtUVecI16x8 : Op
+  fun gt_s_vec_i16x8 = BinaryenGtSVecI16x8 : Op
+  fun gt_u_vec_i16x8 = BinaryenGtUVecI16x8 : Op
+  fun le_s_vec_i16x8 = BinaryenLeSVecI16x8 : Op
+  fun le_u_vec_i16x8 = BinaryenLeUVecI16x8 : Op
+  fun ge_s_vec_i16x8 = BinaryenGeSVecI16x8 : Op
+  fun ge_u_vec_i16x8 = BinaryenGeUVecI16x8 : Op
+  fun eq_vec_i32x4 = BinaryenEqVecI32x4 : Op
+  fun ne_vec_i32x4 = BinaryenNeVecI32x4 : Op
+  fun lt_s_vec_i32x4 = BinaryenLtSVecI32x4 : Op
+  fun lt_u_vec_i32x4 = BinaryenLtUVecI32x4 : Op
+  fun gt_s_vec_i32x4 = BinaryenGtSVecI32x4 : Op
+  fun gt_u_vec_i32x4 = BinaryenGtUVecI32x4 : Op
+  fun le_s_vec_i32x4 = BinaryenLeSVecI32x4 : Op
+  fun le_u_vec_i32x4 = BinaryenLeUVecI32x4 : Op
+  fun ge_s_vec_i32x4 = BinaryenGeSVecI32x4 : Op
+  fun ge_u_vec_i32x4 = BinaryenGeUVecI32x4 : Op
+  fun eq_vec_f32x4 = BinaryenEqVecF32x4 : Op
+  fun ne_vec_f32x4 = BinaryenNeVecF32x4 : Op
+  fun lt_vec_f32x4 = BinaryenLtVecF32x4 : Op
+  fun gt_vec_f32x4 = BinaryenGtVecF32x4 : Op
+  fun le_vec_f32x4 = BinaryenLeVecF32x4 : Op
+  fun ge_vec_f32x4 = BinaryenGeVecF32x4 : Op
+  fun eq_vec_f64x2 = BinaryenEqVecF64x2 : Op
+  fun ne_vec_f64x2 = BinaryenNeVecF64x2 : Op
+  fun lt_vec_f64x2 = BinaryenLtVecF64x2 : Op
+  fun gt_vec_f64x2 = BinaryenGtVecF64x2 : Op
+  fun le_vec_f64x2 = BinaryenLeVecF64x2 : Op
+  fun ge_vec_f64x2 = BinaryenGeVecF64x2 : Op
+  fun not_vec128 = BinaryenNotVec128 : Op
+  fun and_vec128 = BinaryenAndVec128 : Op
+  fun or_vec128 = BinaryenOrVec128 : Op
+  fun xor_vec128 = BinaryenXorVec128 : Op
+  fun neg_vec_i8x16 = BinaryenNegVecI8x16 : Op
+  fun any_true_vec_i8x16 = BinaryenAnyTrueVecI8x16 : Op
+  fun all_true_vec_i8x16 = BinaryenAllTrueVecI8x16 : Op
+  fun shl_vec_i8x16 = BinaryenShlVecI8x16 : Op
+  fun shr_s_vec_i8x16 = BinaryenShrSVecI8x16 : Op
+  fun shr_u_vec_i8x16 = BinaryenShrUVecI8x16 : Op
+  fun add_vec_i8x16 = BinaryenAddVecI8x16 : Op
+  fun add_sat_s_vec_i8x16 = BinaryenAddSatSVecI8x16 : Op
+  fun add_sat_u_vec_i8x16 = BinaryenAddSatUVecI8x16 : Op
+  fun sub_vec_i8x16 = BinaryenSubVecI8x16 : Op
+  fun sub_sat_s_vec_i8x16 = BinaryenSubSatSVecI8x16 : Op
+  fun sub_sat_u_vec_i8x16 = BinaryenSubSatUVecI8x16 : Op
+  fun mul_vec_i8x16 = BinaryenMulVecI8x16 : Op
+  fun neg_vec_i16x8 = BinaryenNegVecI16x8 : Op
+  fun any_true_vec_i16x8 = BinaryenAnyTrueVecI16x8 : Op
+  fun all_true_vec_i16x8 = BinaryenAllTrueVecI16x8 : Op
+  fun shl_vec_i16x8 = BinaryenShlVecI16x8 : Op
+  fun shr_s_vec_i16x8 = BinaryenShrSVecI16x8 : Op
+  fun shr_u_vec_i16x8 = BinaryenShrUVecI16x8 : Op
+  fun add_vec_i16x8 = BinaryenAddVecI16x8 : Op
+  fun add_sat_s_vec_i16x8 = BinaryenAddSatSVecI16x8 : Op
+  fun add_sat_u_vec_i16x8 = BinaryenAddSatUVecI16x8 : Op
+  fun sub_vec_i16x8 = BinaryenSubVecI16x8 : Op
+  fun sub_sat_s_vec_i16x8 = BinaryenSubSatSVecI16x8 : Op
+  fun sub_sat_u_vec_i16x8 = BinaryenSubSatUVecI16x8 : Op
+  fun mul_vec_i16x8 = BinaryenMulVecI16x8 : Op
+  fun neg_vec_i32x4 = BinaryenNegVecI32x4 : Op
+  fun any_true_vec_i32x4 = BinaryenAnyTrueVecI32x4 : Op
+  fun all_true_vec_i32x4 = BinaryenAllTrueVecI32x4 : Op
+  fun shl_vec_i32x4 = BinaryenShlVecI32x4 : Op
+  fun shr_s_vec_i32x4 = BinaryenShrSVecI32x4 : Op
+  fun shr_u_vec_i32x4 = BinaryenShrUVecI32x4 : Op
+  fun add_vec_i32x4 = BinaryenAddVecI32x4 : Op
+  fun sub_vec_i32x4 = BinaryenSubVecI32x4 : Op
+  fun mul_vec_i32x4 = BinaryenMulVecI32x4 : Op
+  fun neg_vec_i64x2 = BinaryenNegVecI64x2 : Op
+  fun any_true_vec_i64x2 = BinaryenAnyTrueVecI64x2 : Op
+  fun all_true_vec_i64x2 = BinaryenAllTrueVecI64x2 : Op
+  fun shl_vec_i64x2 = BinaryenShlVecI64x2 : Op
+  fun shr_s_vec_i64x2 = BinaryenShrSVecI64x2 : Op
+  fun shr_u_vec_i64x2 = BinaryenShrUVecI64x2 : Op
+  fun add_vec_i64x2 = BinaryenAddVecI64x2 : Op
+  fun sub_vec_i64x2 = BinaryenSubVecI64x2 : Op
+  fun abs_vec_f32x4 = BinaryenAbsVecF32x4 : Op
+  fun neg_vec_f32x4 = BinaryenNegVecF32x4 : Op
+  fun sqrt_vec_f32x4 = BinaryenSqrtVecF32x4 : Op
+  fun add_vec_f32x4 = BinaryenAddVecF32x4 : Op
+  fun sub_vec_f32x4 = BinaryenSubVecF32x4 : Op
+  fun mul_vec_f32x4 = BinaryenMulVecF32x4 : Op
+  fun div_vec_f32x4 = BinaryenDivVecF32x4 : Op
+  fun min_vec_f32x4 = BinaryenMinVecF32x4 : Op
+  fun max_vec_f32x4 = BinaryenMaxVecF32x4 : Op
+  fun abs_vec_f64x2 = BinaryenAbsVecF64x2 : Op
+  fun neg_vec_f64x2 = BinaryenNegVecF64x2 : Op
+  fun sqrt_vec_f64x2 = BinaryenSqrtVecF64x2 : Op
+  fun add_vec_f64x2 = BinaryenAddVecF64x2 : Op
+  fun sub_vec_f64x2 = BinaryenSubVecF64x2 : Op
+  fun mul_vec_f64x2 = BinaryenMulVecF64x2 : Op
+  fun div_vec_f64x2 = BinaryenDivVecF64x2 : Op
+  fun min_vec_f64x2 = BinaryenMinVecF64x2 : Op
+  fun max_vec_f64x2 = BinaryenMaxVecF64x2 : Op
+  fun trunc_sat_s_vec_f32x4_to_vec_i32x4 = BinaryenTruncSatSVecF32x4ToVecI32x4 : Op
+  fun trunc_sat_u_vec_f32x4_to_vec_i32x4 = BinaryenTruncSatUVecF32x4ToVecI32x4 : Op
+  fun trunc_sat_s_vec_f64x2_to_vec_i64x2 = BinaryenTruncSatSVecF64x2ToVecI64x2 : Op
+  fun trunc_sat_u_vec_f64x2_to_vec_i64x2 = BinaryenTruncSatUVecF64x2ToVecI64x2 : Op
+  fun convert_s_vec_i32x4_to_vec_f32x4 = BinaryenConvertSVecI32x4ToVecF32x4 : Op
+  fun convert_u_vec_i32x4_to_vec_f32x4 = BinaryenConvertUVecI32x4ToVecF32x4 : Op
+  fun convert_s_vec_i64x2_to_vec_f64x2 = BinaryenConvertSVecI64x2ToVecF64x2 : Op
+  fun convert_u_vec_i64x2_to_vec_f64x2 = BinaryenConvertUVecI64x2ToVecF64x2 : Op
+  fun block = BinaryenBlock(module : ModuleRef, name : LibC::Char*, children : ExpressionRef*, num_children : Index, type : Type) : ExpressionRef
+  alias ExpressionRef = Void*
+  fun if = BinaryenIf(module : ModuleRef, condition : ExpressionRef, if_true : ExpressionRef, if_false : ExpressionRef) : ExpressionRef
+  fun loop = BinaryenLoop(module : ModuleRef, in : LibC::Char*, body : ExpressionRef) : ExpressionRef
+  fun break = BinaryenBreak(module : ModuleRef, name : LibC::Char*, condition : ExpressionRef, value : ExpressionRef) : ExpressionRef
+  fun switch = BinaryenSwitch(module : ModuleRef, names : LibC::Char**, num_names : Index, default_name : LibC::Char*, condition : ExpressionRef, value : ExpressionRef) : ExpressionRef
+  fun call = BinaryenCall(module : ModuleRef, target : LibC::Char*, operands : ExpressionRef*, num_operands : Index, return_type : Type) : ExpressionRef
+  fun call_indirect = BinaryenCallIndirect(module : ModuleRef, target : ExpressionRef, operands : ExpressionRef*, num_operands : Index, type : LibC::Char*) : ExpressionRef
+  fun return_call = BinaryenReturnCall(module : ModuleRef, target : LibC::Char*, operands : ExpressionRef*, num_operands : Index, return_type : Type) : ExpressionRef
+  fun return_call_indirect = BinaryenReturnCallIndirect(module : ModuleRef, target : ExpressionRef, operands : ExpressionRef*, num_operands : Index, type : LibC::Char*) : ExpressionRef
+  fun local_get = BinaryenLocalGet(module : ModuleRef, index : Index, type : Type) : ExpressionRef
+  fun local_set = BinaryenLocalSet(module : ModuleRef, index : Index, value : ExpressionRef) : ExpressionRef
+  fun local_tee = BinaryenLocalTee(module : ModuleRef, index : Index, value : ExpressionRef) : ExpressionRef
+  fun global_get = BinaryenGlobalGet(module : ModuleRef, name : LibC::Char*, type : Type) : ExpressionRef
+  fun global_set = BinaryenGlobalSet(module : ModuleRef, name : LibC::Char*, value : ExpressionRef) : ExpressionRef
+  fun load = BinaryenLoad(module : ModuleRef, bytes : Uint32T, signed_ : Int8T, offset : Uint32T, align : Uint32T, type : Type, ptr : ExpressionRef) : ExpressionRef
+  alias X__Int8T = LibC::Char
+  alias Int8T = X__Int8T
+  fun store = BinaryenStore(module : ModuleRef, bytes : Uint32T, offset : Uint32T, align : Uint32T, ptr : ExpressionRef, value : ExpressionRef, type : Type) : ExpressionRef
+  fun const = BinaryenConst(module : ModuleRef, value : Literal) : ExpressionRef
+  fun unary = BinaryenUnary(module : ModuleRef, op : Op, value : ExpressionRef) : ExpressionRef
+  fun binary = BinaryenBinary(module : ModuleRef, op : Op, left : ExpressionRef, right : ExpressionRef) : ExpressionRef
+  fun select = BinaryenSelect(module : ModuleRef, condition : ExpressionRef, if_true : ExpressionRef, if_false : ExpressionRef) : ExpressionRef
+  fun drop = BinaryenDrop(module : ModuleRef, value : ExpressionRef) : ExpressionRef
+  fun return = BinaryenReturn(module : ModuleRef, value : ExpressionRef) : ExpressionRef
+  fun host = BinaryenHost(module : ModuleRef, op : Op, name : LibC::Char*, operands : ExpressionRef*, num_operands : Index) : ExpressionRef
+  fun nop = BinaryenNop(module : ModuleRef) : ExpressionRef
+  fun unreachable = BinaryenUnreachable(module : ModuleRef) : ExpressionRef
+  fun atomic_load = BinaryenAtomicLoad(module : ModuleRef, bytes : Uint32T, offset : Uint32T, type : Type, ptr : ExpressionRef) : ExpressionRef
+  fun atomic_store = BinaryenAtomicStore(module : ModuleRef, bytes : Uint32T, offset : Uint32T, ptr : ExpressionRef, value : ExpressionRef, type : Type) : ExpressionRef
+  fun atomic_rmw = BinaryenAtomicRMW(module : ModuleRef, op : Op, bytes : Index, offset : Index, ptr : ExpressionRef, value : ExpressionRef, type : Type) : ExpressionRef
+  fun atomic_cmpxchg = BinaryenAtomicCmpxchg(module : ModuleRef, bytes : Index, offset : Index, ptr : ExpressionRef, expected : ExpressionRef, replacement : ExpressionRef, type : Type) : ExpressionRef
+  fun atomic_wait = BinaryenAtomicWait(module : ModuleRef, ptr : ExpressionRef, expected : ExpressionRef, timeout : ExpressionRef, type : Type) : ExpressionRef
+  fun atomic_notify = BinaryenAtomicNotify(module : ModuleRef, ptr : ExpressionRef, notify_count : ExpressionRef) : ExpressionRef
+  fun simd_extract = BinaryenSIMDExtract(module : ModuleRef, op : Op, vec : ExpressionRef, index : Uint8T) : ExpressionRef
+  fun simd_replace = BinaryenSIMDReplace(module : ModuleRef, op : Op, vec : ExpressionRef, index : Uint8T, value : ExpressionRef) : ExpressionRef
+  fun simd_shuffle = BinaryenSIMDShuffle(module : ModuleRef, left : ExpressionRef, right : ExpressionRef, mask : Uint8T[16]) : ExpressionRef
+  fun simd_bitselect = BinaryenSIMDBitselect(module : ModuleRef, left : ExpressionRef, right : ExpressionRef, cond : ExpressionRef) : ExpressionRef
+  fun simd_shift = BinaryenSIMDShift(module : ModuleRef, op : Op, vec : ExpressionRef, shift : ExpressionRef) : ExpressionRef
+  fun memory_init = BinaryenMemoryInit(module : ModuleRef, segment : Uint32T, dest : ExpressionRef, offset : ExpressionRef, size : ExpressionRef) : ExpressionRef
+  fun data_drop = BinaryenDataDrop(module : ModuleRef, segment : Uint32T) : ExpressionRef
+  fun memory_copy = BinaryenMemoryCopy(module : ModuleRef, dest : ExpressionRef, source : ExpressionRef, size : ExpressionRef) : ExpressionRef
+  fun memory_fill = BinaryenMemoryFill(module : ModuleRef, dest : ExpressionRef, value : ExpressionRef, size : ExpressionRef) : ExpressionRef
+  fun try = BinaryenTry(module : ModuleRef, body : ExpressionRef, catch_body : ExpressionRef) : ExpressionRef
+  fun throw = BinaryenThrow(module : ModuleRef, event : LibC::Char*, operands : ExpressionRef*, num_operands : Index) : ExpressionRef
+  fun rethrow = BinaryenRethrow(module : ModuleRef, exnref : ExpressionRef) : ExpressionRef
+  fun br_on_exn = BinaryenBrOnExn(module : ModuleRef, name : LibC::Char*, event_name : LibC::Char*, exnref : ExpressionRef) : ExpressionRef
+  fun push = BinaryenPush(module : ModuleRef, value : ExpressionRef) : ExpressionRef
+  fun pop = BinaryenPop(module : ModuleRef, type : Type) : ExpressionRef
+  fun expression_get_id = BinaryenExpressionGetId(expr : ExpressionRef) : ExpressionId
+  fun expression_get_type = BinaryenExpressionGetType(expr : ExpressionRef) : Type
+  fun expression_print = BinaryenExpressionPrint(expr : ExpressionRef)
+  fun block_get_name = BinaryenBlockGetName(expr : ExpressionRef) : LibC::Char*
+  fun block_get_num_children = BinaryenBlockGetNumChildren(expr : ExpressionRef) : Index
+  fun block_get_child = BinaryenBlockGetChild(expr : ExpressionRef, index : Index) : ExpressionRef
+  fun if_get_condition = BinaryenIfGetCondition(expr : ExpressionRef) : ExpressionRef
+  fun if_get_if_true = BinaryenIfGetIfTrue(expr : ExpressionRef) : ExpressionRef
+  fun if_get_if_false = BinaryenIfGetIfFalse(expr : ExpressionRef) : ExpressionRef
+  fun loop_get_name = BinaryenLoopGetName(expr : ExpressionRef) : LibC::Char*
+  fun loop_get_body = BinaryenLoopGetBody(expr : ExpressionRef) : ExpressionRef
+  fun break_get_name = BinaryenBreakGetName(expr : ExpressionRef) : LibC::Char*
+  fun break_get_condition = BinaryenBreakGetCondition(expr : ExpressionRef) : ExpressionRef
+  fun break_get_value = BinaryenBreakGetValue(expr : ExpressionRef) : ExpressionRef
+  fun switch_get_num_names = BinaryenSwitchGetNumNames(expr : ExpressionRef) : Index
+  fun switch_get_name = BinaryenSwitchGetName(expr : ExpressionRef, index : Index) : LibC::Char*
+  fun switch_get_default_name = BinaryenSwitchGetDefaultName(expr : ExpressionRef) : LibC::Char*
+  fun switch_get_condition = BinaryenSwitchGetCondition(expr : ExpressionRef) : ExpressionRef
+  fun switch_get_value = BinaryenSwitchGetValue(expr : ExpressionRef) : ExpressionRef
+  fun call_get_target = BinaryenCallGetTarget(expr : ExpressionRef) : LibC::Char*
+  fun call_get_num_operands = BinaryenCallGetNumOperands(expr : ExpressionRef) : Index
+  fun call_get_operand = BinaryenCallGetOperand(expr : ExpressionRef, index : Index) : ExpressionRef
+  fun call_indirect_get_target = BinaryenCallIndirectGetTarget(expr : ExpressionRef) : ExpressionRef
+  fun call_indirect_get_num_operands = BinaryenCallIndirectGetNumOperands(expr : ExpressionRef) : Index
+  fun call_indirect_get_operand = BinaryenCallIndirectGetOperand(expr : ExpressionRef, index : Index) : ExpressionRef
+  fun local_get_get_index = BinaryenLocalGetGetIndex(expr : ExpressionRef) : Index
+  fun local_set_is_tee = BinaryenLocalSetIsTee(expr : ExpressionRef) : LibC::Int
+  fun local_set_get_index = BinaryenLocalSetGetIndex(expr : ExpressionRef) : Index
+  fun local_set_get_value = BinaryenLocalSetGetValue(expr : ExpressionRef) : ExpressionRef
+  fun global_get_get_name = BinaryenGlobalGetGetName(expr : ExpressionRef) : LibC::Char*
+  fun global_set_get_name = BinaryenGlobalSetGetName(expr : ExpressionRef) : LibC::Char*
+  fun global_set_get_value = BinaryenGlobalSetGetValue(expr : ExpressionRef) : ExpressionRef
+  fun host_get_op = BinaryenHostGetOp(expr : ExpressionRef) : Op
+  fun host_get_name_operand = BinaryenHostGetNameOperand(expr : ExpressionRef) : LibC::Char*
+  fun host_get_num_operands = BinaryenHostGetNumOperands(expr : ExpressionRef) : Index
+  fun host_get_operand = BinaryenHostGetOperand(expr : ExpressionRef, index : Index) : ExpressionRef
+  fun load_is_atomic = BinaryenLoadIsAtomic(expr : ExpressionRef) : LibC::Int
+  fun load_is_signed = BinaryenLoadIsSigned(expr : ExpressionRef) : LibC::Int
+  fun load_get_offset = BinaryenLoadGetOffset(expr : ExpressionRef) : Uint32T
+  fun load_get_bytes = BinaryenLoadGetBytes(expr : ExpressionRef) : Uint32T
+  fun load_get_align = BinaryenLoadGetAlign(expr : ExpressionRef) : Uint32T
+  fun load_get_ptr = BinaryenLoadGetPtr(expr : ExpressionRef) : ExpressionRef
+  fun store_is_atomic = BinaryenStoreIsAtomic(expr : ExpressionRef) : LibC::Int
+  fun store_get_bytes = BinaryenStoreGetBytes(expr : ExpressionRef) : Uint32T
+  fun store_get_offset = BinaryenStoreGetOffset(expr : ExpressionRef) : Uint32T
+  fun store_get_align = BinaryenStoreGetAlign(expr : ExpressionRef) : Uint32T
+  fun store_get_ptr = BinaryenStoreGetPtr(expr : ExpressionRef) : ExpressionRef
+  fun store_get_value = BinaryenStoreGetValue(expr : ExpressionRef) : ExpressionRef
+  fun const_get_value_i32 = BinaryenConstGetValueI32(expr : ExpressionRef) : Int32T
+  fun const_get_value_i64 = BinaryenConstGetValueI64(expr : ExpressionRef) : Int64T
+  fun const_get_value_i64_low = BinaryenConstGetValueI64Low(expr : ExpressionRef) : Int32T
+  fun const_get_value_i64_high = BinaryenConstGetValueI64High(expr : ExpressionRef) : Int32T
+  fun const_get_value_f32 = BinaryenConstGetValueF32(expr : ExpressionRef) : LibC::Float
+  fun const_get_value_f64 = BinaryenConstGetValueF64(expr : ExpressionRef) : LibC::Double
+  fun const_get_value_v128 = BinaryenConstGetValueV128(expr : ExpressionRef, out : Uint8T*)
+  fun unary_get_op = BinaryenUnaryGetOp(expr : ExpressionRef) : Op
+  fun unary_get_value = BinaryenUnaryGetValue(expr : ExpressionRef) : ExpressionRef
+  fun binary_get_op = BinaryenBinaryGetOp(expr : ExpressionRef) : Op
+  fun binary_get_left = BinaryenBinaryGetLeft(expr : ExpressionRef) : ExpressionRef
+  fun binary_get_right = BinaryenBinaryGetRight(expr : ExpressionRef) : ExpressionRef
+  fun select_get_if_true = BinaryenSelectGetIfTrue(expr : ExpressionRef) : ExpressionRef
+  fun select_get_if_false = BinaryenSelectGetIfFalse(expr : ExpressionRef) : ExpressionRef
+  fun select_get_condition = BinaryenSelectGetCondition(expr : ExpressionRef) : ExpressionRef
+  fun drop_get_value = BinaryenDropGetValue(expr : ExpressionRef) : ExpressionRef
+  fun return_get_value = BinaryenReturnGetValue(expr : ExpressionRef) : ExpressionRef
+  fun atomic_rmw_get_op = BinaryenAtomicRMWGetOp(expr : ExpressionRef) : Op
+  fun atomic_rmw_get_bytes = BinaryenAtomicRMWGetBytes(expr : ExpressionRef) : Uint32T
+  fun atomic_rmw_get_offset = BinaryenAtomicRMWGetOffset(expr : ExpressionRef) : Uint32T
+  fun atomic_rmw_get_ptr = BinaryenAtomicRMWGetPtr(expr : ExpressionRef) : ExpressionRef
+  fun atomic_rmw_get_value = BinaryenAtomicRMWGetValue(expr : ExpressionRef) : ExpressionRef
+  fun atomic_cmpxchg_get_bytes = BinaryenAtomicCmpxchgGetBytes(expr : ExpressionRef) : Uint32T
+  fun atomic_cmpxchg_get_offset = BinaryenAtomicCmpxchgGetOffset(expr : ExpressionRef) : Uint32T
+  fun atomic_cmpxchg_get_ptr = BinaryenAtomicCmpxchgGetPtr(expr : ExpressionRef) : ExpressionRef
+  fun atomic_cmpxchg_get_expected = BinaryenAtomicCmpxchgGetExpected(expr : ExpressionRef) : ExpressionRef
+  fun atomic_cmpxchg_get_replacement = BinaryenAtomicCmpxchgGetReplacement(expr : ExpressionRef) : ExpressionRef
+  fun atomic_wait_get_ptr = BinaryenAtomicWaitGetPtr(expr : ExpressionRef) : ExpressionRef
+  fun atomic_wait_get_expected = BinaryenAtomicWaitGetExpected(expr : ExpressionRef) : ExpressionRef
+  fun atomic_wait_get_timeout = BinaryenAtomicWaitGetTimeout(expr : ExpressionRef) : ExpressionRef
+  fun atomic_wait_get_expected_type = BinaryenAtomicWaitGetExpectedType(expr : ExpressionRef) : Type
+  fun atomic_notify_get_ptr = BinaryenAtomicNotifyGetPtr(expr : ExpressionRef) : ExpressionRef
+  fun atomic_notify_get_notify_count = BinaryenAtomicNotifyGetNotifyCount(expr : ExpressionRef) : ExpressionRef
+  fun simd_extract_get_op = BinaryenSIMDExtractGetOp(expr : ExpressionRef) : Op
+  fun simd_extract_get_vec = BinaryenSIMDExtractGetVec(expr : ExpressionRef) : ExpressionRef
+  fun simd_extract_get_index = BinaryenSIMDExtractGetIndex(expr : ExpressionRef) : Uint8T
+  fun simd_replace_get_op = BinaryenSIMDReplaceGetOp(expr : ExpressionRef) : Op
+  fun simd_replace_get_vec = BinaryenSIMDReplaceGetVec(expr : ExpressionRef) : ExpressionRef
+  fun simd_replace_get_index = BinaryenSIMDReplaceGetIndex(expr : ExpressionRef) : Uint8T
+  fun simd_replace_get_value = BinaryenSIMDReplaceGetValue(expr : ExpressionRef) : ExpressionRef
+  fun simd_shuffle_get_left = BinaryenSIMDShuffleGetLeft(expr : ExpressionRef) : ExpressionRef
+  fun simd_shuffle_get_right = BinaryenSIMDShuffleGetRight(expr : ExpressionRef) : ExpressionRef
+  fun simd_shuffle_get_mask = BinaryenSIMDShuffleGetMask(expr : ExpressionRef, mask : Uint8T*)
+  fun simd_bitselect_get_left = BinaryenSIMDBitselectGetLeft(expr : ExpressionRef) : ExpressionRef
+  fun simd_bitselect_get_right = BinaryenSIMDBitselectGetRight(expr : ExpressionRef) : ExpressionRef
+  fun simd_bitselect_get_cond = BinaryenSIMDBitselectGetCond(expr : ExpressionRef) : ExpressionRef
+  fun simd_shift_get_op = BinaryenSIMDShiftGetOp(expr : ExpressionRef) : Op
+  fun simd_shift_get_vec = BinaryenSIMDShiftGetVec(expr : ExpressionRef) : ExpressionRef
+  fun simd_shift_get_shift = BinaryenSIMDShiftGetShift(expr : ExpressionRef) : ExpressionRef
+  fun memory_init_get_segment = BinaryenMemoryInitGetSegment(expr : ExpressionRef) : Uint32T
+  fun memory_init_get_dest = BinaryenMemoryInitGetDest(expr : ExpressionRef) : ExpressionRef
+  fun memory_init_get_offset = BinaryenMemoryInitGetOffset(expr : ExpressionRef) : ExpressionRef
+  fun memory_init_get_size = BinaryenMemoryInitGetSize(expr : ExpressionRef) : ExpressionRef
+  fun data_drop_get_segment = BinaryenDataDropGetSegment(expr : ExpressionRef) : Uint32T
+  fun memory_copy_get_dest = BinaryenMemoryCopyGetDest(expr : ExpressionRef) : ExpressionRef
+  fun memory_copy_get_source = BinaryenMemoryCopyGetSource(expr : ExpressionRef) : ExpressionRef
+  fun memory_copy_get_size = BinaryenMemoryCopyGetSize(expr : ExpressionRef) : ExpressionRef
+  fun memory_fill_get_dest = BinaryenMemoryFillGetDest(expr : ExpressionRef) : ExpressionRef
+  fun memory_fill_get_value = BinaryenMemoryFillGetValue(expr : ExpressionRef) : ExpressionRef
+  fun memory_fill_get_size = BinaryenMemoryFillGetSize(expr : ExpressionRef) : ExpressionRef
+  fun try_get_body = BinaryenTryGetBody(expr : ExpressionRef) : ExpressionRef
+  fun try_get_catch_body = BinaryenTryGetCatchBody(expr : ExpressionRef) : ExpressionRef
+  fun throw_get_event = BinaryenThrowGetEvent(expr : ExpressionRef) : LibC::Char*
+  fun throw_get_operand = BinaryenThrowGetOperand(expr : ExpressionRef, index : Index) : ExpressionRef
+  fun throw_get_num_operands = BinaryenThrowGetNumOperands(expr : ExpressionRef) : Index
+  fun rethrow_get_exnref = BinaryenRethrowGetExnref(expr : ExpressionRef) : ExpressionRef
+  fun br_on_exn_get_event = BinaryenBrOnExnGetEvent(expr : ExpressionRef) : LibC::Char*
+  fun br_on_exn_get_name = BinaryenBrOnExnGetName(expr : ExpressionRef) : LibC::Char*
+  fun br_on_exn_get_exnref = BinaryenBrOnExnGetExnref(expr : ExpressionRef) : ExpressionRef
+  fun push_get_value = BinaryenPushGetValue(expr : ExpressionRef) : ExpressionRef
+  fun add_function = BinaryenAddFunction(module : ModuleRef, name : LibC::Char*, type : FunctionTypeRef, var_types : Type*, num_var_types : Index, body : ExpressionRef) : FunctionRef
+  alias FunctionRef = Void*
+  fun get_function = BinaryenGetFunction(module : ModuleRef, name : LibC::Char*) : FunctionRef
+  fun remove_function = BinaryenRemoveFunction(module : ModuleRef, name : LibC::Char*)
+  fun add_function_import = BinaryenAddFunctionImport(module : ModuleRef, internal_name : LibC::Char*, external_module_name : LibC::Char*, external_base_name : LibC::Char*, function_type : FunctionTypeRef)
+  fun add_table_import = BinaryenAddTableImport(module : ModuleRef, internal_name : LibC::Char*, external_module_name : LibC::Char*, external_base_name : LibC::Char*)
+  fun add_memory_import = BinaryenAddMemoryImport(module : ModuleRef, internal_name : LibC::Char*, external_module_name : LibC::Char*, external_base_name : LibC::Char*, shared : Uint8T)
+  fun add_global_import = BinaryenAddGlobalImport(module : ModuleRef, internal_name : LibC::Char*, external_module_name : LibC::Char*, external_base_name : LibC::Char*, global_type : Type)
+  fun add_event_import = BinaryenAddEventImport(module : ModuleRef, internal_name : LibC::Char*, external_module_name : LibC::Char*, external_base_name : LibC::Char*, attribute : Uint32T, event_type : FunctionTypeRef)
+  fun add_export = BinaryenAddExport(module : ModuleRef, internal_name : LibC::Char*, external_name : LibC::Char*) : ExportRef
+  alias ExportRef = Void*
+  fun add_function_export = BinaryenAddFunctionExport(module : ModuleRef, internal_name : LibC::Char*, external_name : LibC::Char*) : ExportRef
+  fun add_table_export = BinaryenAddTableExport(module : ModuleRef, internal_name : LibC::Char*, external_name : LibC::Char*) : ExportRef
+  fun add_memory_export = BinaryenAddMemoryExport(module : ModuleRef, internal_name : LibC::Char*, external_name : LibC::Char*) : ExportRef
+  fun add_global_export = BinaryenAddGlobalExport(module : ModuleRef, internal_name : LibC::Char*, external_name : LibC::Char*) : ExportRef
+  fun add_event_export = BinaryenAddEventExport(module : ModuleRef, internal_name : LibC::Char*, external_name : LibC::Char*) : ExportRef
+  fun remove_export = BinaryenRemoveExport(module : ModuleRef, external_name : LibC::Char*)
+  fun add_global = BinaryenAddGlobal(module : ModuleRef, name : LibC::Char*, type : Type, mutable_ : Int8T, init : ExpressionRef) : GlobalRef
+  alias GlobalRef = Void*
+  fun get_global = BinaryenGetGlobal(module : ModuleRef, name : LibC::Char*) : GlobalRef
+  fun remove_global = BinaryenRemoveGlobal(module : ModuleRef, name : LibC::Char*)
+  fun add_event = BinaryenAddEvent(module : ModuleRef, name : LibC::Char*, attribute : Uint32T, type : FunctionTypeRef) : EventRef
+  alias EventRef = Void*
+  fun get_event = BinaryenGetEvent(module : ModuleRef, name : LibC::Char*) : EventRef
+  fun remove_event = BinaryenRemoveEvent(module : ModuleRef, name : LibC::Char*)
+  fun set_function_table = BinaryenSetFunctionTable(module : ModuleRef, initial : Index, maximum : Index, func_names : LibC::Char**, num_func_names : Index)
+  fun set_memory = BinaryenSetMemory(module : ModuleRef, initial : Index, maximum : Index, export_name : LibC::Char*, segments : LibC::Char**, segment_passive : Int8T*, segment_offsets : ExpressionRef*, segment_sizes : Index*, num_segments : Index, shared : Uint8T)
+  fun set_start = BinaryenSetStart(module : ModuleRef, start : FunctionRef)
+  fun module_get_features = BinaryenModuleGetFeatures(module : ModuleRef) : Features
+  fun module_set_features = BinaryenModuleSetFeatures(module : ModuleRef, features : Features)
+  fun module_parse = BinaryenModuleParse(text : LibC::Char*) : ModuleRef
+  fun module_print = BinaryenModulePrint(module : ModuleRef)
+  fun module_print_asmjs = BinaryenModulePrintAsmjs(module : ModuleRef)
+  fun module_validate = BinaryenModuleValidate(module : ModuleRef) : LibC::Int
+  fun module_optimize = BinaryenModuleOptimize(module : ModuleRef)
+  fun get_optimize_level = BinaryenGetOptimizeLevel : LibC::Int
+  fun set_optimize_level = BinaryenSetOptimizeLevel(level : LibC::Int)
+  fun get_shrink_level = BinaryenGetShrinkLevel : LibC::Int
+  fun set_shrink_level = BinaryenSetShrinkLevel(level : LibC::Int)
+  fun get_debug_info = BinaryenGetDebugInfo : LibC::Int
+  fun set_debug_info = BinaryenSetDebugInfo(on : LibC::Int)
+  fun module_run_passes = BinaryenModuleRunPasses(module : ModuleRef, passes : LibC::Char**, num_passes : Index)
+  fun module_auto_drop = BinaryenModuleAutoDrop(module : ModuleRef)
+  fun module_write = BinaryenModuleWrite(module : ModuleRef, output : LibC::Char*, output_size : LibC::SizeT) : LibC::SizeT
+  fun module_write_text = BinaryenModuleWriteText(module : ModuleRef, output : LibC::Char*, output_size : LibC::SizeT) : LibC::SizeT
+  struct BufferSizes
+    output_bytes : LibC::SizeT
+    source_map_bytes : LibC::SizeT
+  end
+  fun module_write_with_source_map = BinaryenModuleWriteWithSourceMap(module : ModuleRef, url : LibC::Char*, output : LibC::Char*, output_size : LibC::SizeT, source_map : LibC::Char*, source_map_size : LibC::SizeT) : BufferSizes
+  struct ModuleAllocateAndWriteResult
+    binary : Void*
+    binary_bytes : LibC::SizeT
+    source_map : LibC::Char*
+  end
+  fun module_allocate_and_write = BinaryenModuleAllocateAndWrite(module : ModuleRef, source_map_url : LibC::Char*) : ModuleAllocateAndWriteResult
+  fun module_allocate_and_write_text = BinaryenModuleAllocateAndWriteText(module : ModuleRef*) : LibC::Char*
+  fun module_read = BinaryenModuleRead(input : LibC::Char*, input_size : LibC::SizeT) : ModuleRef
+  fun module_interpret = BinaryenModuleInterpret(module : ModuleRef)
+  fun module_add_debug_info_file_name = BinaryenModuleAddDebugInfoFileName(module : ModuleRef, filename : LibC::Char*) : Index
+  fun module_get_debug_info_file_name = BinaryenModuleGetDebugInfoFileName(module : ModuleRef, index : Index) : LibC::Char*
+  fun function_type_get_name = BinaryenFunctionTypeGetName(ftype : FunctionTypeRef) : LibC::Char*
+  fun function_type_get_num_params = BinaryenFunctionTypeGetNumParams(ftype : FunctionTypeRef) : Index
+  fun function_type_get_param = BinaryenFunctionTypeGetParam(ftype : FunctionTypeRef, index : Index) : Type
+  fun function_type_get_result = BinaryenFunctionTypeGetResult(ftype : FunctionTypeRef) : Type
+  fun function_get_name = BinaryenFunctionGetName(func : FunctionRef) : LibC::Char*
+  fun function_get_type = BinaryenFunctionGetType(func : FunctionRef) : LibC::Char*
+  fun function_get_num_params = BinaryenFunctionGetNumParams(func : FunctionRef) : Index
+  fun function_get_param = BinaryenFunctionGetParam(func : FunctionRef, index : Index) : Type
+  fun function_get_result = BinaryenFunctionGetResult(func : FunctionRef) : Type
+  fun function_get_num_vars = BinaryenFunctionGetNumVars(func : FunctionRef) : Index
+  fun function_get_var = BinaryenFunctionGetVar(func : FunctionRef, index : Index) : Type
+  fun function_get_body = BinaryenFunctionGetBody(func : FunctionRef) : ExpressionRef
+  fun function_optimize = BinaryenFunctionOptimize(func : FunctionRef, module : ModuleRef)
+  fun function_run_passes = BinaryenFunctionRunPasses(func : FunctionRef, module : ModuleRef, passes : LibC::Char**, num_passes : Index)
+  fun function_set_debug_location = BinaryenFunctionSetDebugLocation(func : FunctionRef, expr : ExpressionRef, file_index : Index, line_number : Index, column_number : Index)
+  fun global_get_name = BinaryenGlobalGetName(global : GlobalRef) : LibC::Char*
+  fun global_get_type = BinaryenGlobalGetType(global : GlobalRef) : Type
+  fun global_is_mutable = BinaryenGlobalIsMutable(global : GlobalRef) : LibC::Int
+  fun global_get_init_expr = BinaryenGlobalGetInitExpr(global : GlobalRef) : ExpressionRef
+  fun event_get_name = BinaryenEventGetName(event : EventRef) : LibC::Char*
+  fun event_get_attribute = BinaryenEventGetAttribute(event : EventRef) : LibC::Int
+  fun event_get_type = BinaryenEventGetType(event : EventRef) : LibC::Char*
+  fun event_get_num_params = BinaryenEventGetNumParams(event : EventRef) : Index
+  fun event_get_param = BinaryenEventGetParam(event : EventRef, index : Index) : Type
+  fun function_import_get_module = BinaryenFunctionImportGetModule(import : FunctionRef) : LibC::Char*
+  fun global_import_get_module = BinaryenGlobalImportGetModule(import : GlobalRef) : LibC::Char*
+  fun event_import_get_module = BinaryenEventImportGetModule(import : EventRef) : LibC::Char*
+  fun function_import_get_base = BinaryenFunctionImportGetBase(import : FunctionRef) : LibC::Char*
+  fun global_import_get_base = BinaryenGlobalImportGetBase(import : GlobalRef) : LibC::Char*
+  fun event_import_get_base = BinaryenEventImportGetBase(import : EventRef) : LibC::Char*
+  fun export_get_kind = BinaryenExportGetKind(export_ : ExportRef) : ExternalKind
+  fun export_get_name = BinaryenExportGetName(export_ : ExportRef) : LibC::Char*
+  fun export_get_value = BinaryenExportGetValue(export_ : ExportRef) : LibC::Char*
+  fun set_api_tracing = BinaryenSetAPITracing(on : LibC::Int)
+  fun get_function_type_by_signature = BinaryenGetFunctionTypeBySignature(module : ModuleRef, result : Type, param_types : Type*, num_params : Index) : FunctionTypeRef
+  fun set_colors_enabled = BinaryenSetColorsEnabled(enabled : LibC::Int)
+  fun are_colors_enabled = BinaryenAreColorsEnabled : LibC::Int
 end
