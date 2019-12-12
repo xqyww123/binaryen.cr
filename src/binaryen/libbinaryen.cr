@@ -27,8 +27,8 @@ lib LibBinaryen
   fun switch_id = BinaryenSwitchId : ExpressionId
   fun call_id = BinaryenCallId : ExpressionId
   fun call_indirect_id = BinaryenCallIndirectId : ExpressionId
-  fun local_get_id = BinaryenLocalGetId : ExpressionId
-  fun local_set_id = BinaryenLocalSetId : ExpressionId
+  fun get_local_id = BinaryenLocalGetId : ExpressionId
+  fun set_local_id = BinaryenLocalSetId : ExpressionId
   fun global_get_id = BinaryenGlobalGetId : ExpressionId
   fun global_set_id = BinaryenGlobalSetId : ExpressionId
   fun load_id = BinaryenLoadId : ExpressionId
@@ -84,9 +84,20 @@ lib LibBinaryen
   alias Index = Uint32T
   alias FunctionTypeRef = Void*
   fun remove_function_type = BinaryenRemoveFunctionType(module : ModuleRef, name : LibC::Char*)
+
+  union LiteralUnion
+    i32 : Int32
+    i64 : Int64
+    f32 : Float32
+    f64 : Float64
+    v128 : UInt8[16]
+  end
+
   struct Literal
     type : Int32T
+    v : LiteralUnion
   end
+
   alias X__Int32T = LibC::Int
   alias Int32T = X__Int32T
   fun literal_int32 = BinaryenLiteralInt32(x : Int32T) : Literal
@@ -390,9 +401,9 @@ lib LibBinaryen
   fun call_indirect = BinaryenCallIndirect(module : ModuleRef, target : ExpressionRef, operands : ExpressionRef*, num_operands : Index, type : LibC::Char*) : ExpressionRef
   fun return_call = BinaryenReturnCall(module : ModuleRef, target : LibC::Char*, operands : ExpressionRef*, num_operands : Index, return_type : Type) : ExpressionRef
   fun return_call_indirect = BinaryenReturnCallIndirect(module : ModuleRef, target : ExpressionRef, operands : ExpressionRef*, num_operands : Index, type : LibC::Char*) : ExpressionRef
-  fun local_get = BinaryenLocalGet(module : ModuleRef, index : Index, type : Type) : ExpressionRef
-  fun local_set = BinaryenLocalSet(module : ModuleRef, index : Index, value : ExpressionRef) : ExpressionRef
-  fun local_tee = BinaryenLocalTee(module : ModuleRef, index : Index, value : ExpressionRef) : ExpressionRef
+  fun get_local = BinaryenLocalGet(module : ModuleRef, index : Index, type : Type) : ExpressionRef
+  fun set_local = BinaryenLocalSet(module : ModuleRef, index : Index, value : ExpressionRef) : ExpressionRef
+  fun tee_local = BinaryenLocalTee(module : ModuleRef, index : Index, value : ExpressionRef) : ExpressionRef
   fun global_get = BinaryenGlobalGet(module : ModuleRef, name : LibC::Char*, type : Type) : ExpressionRef
   fun global_set = BinaryenGlobalSet(module : ModuleRef, name : LibC::Char*, value : ExpressionRef) : ExpressionRef
   fun load = BinaryenLoad(module : ModuleRef, bytes : Uint32T, signed_ : Int8T, offset : Uint32T, align : Uint32T, type : Type, ptr : ExpressionRef) : ExpressionRef
@@ -454,10 +465,10 @@ lib LibBinaryen
   fun call_indirect_get_target = BinaryenCallIndirectGetTarget(expr : ExpressionRef) : ExpressionRef
   fun call_indirect_get_num_operands = BinaryenCallIndirectGetNumOperands(expr : ExpressionRef) : Index
   fun call_indirect_get_operand = BinaryenCallIndirectGetOperand(expr : ExpressionRef, index : Index) : ExpressionRef
-  fun local_get_get_index = BinaryenLocalGetGetIndex(expr : ExpressionRef) : Index
-  fun local_set_is_tee = BinaryenLocalSetIsTee(expr : ExpressionRef) : LibC::Int
-  fun local_set_get_index = BinaryenLocalSetGetIndex(expr : ExpressionRef) : Index
-  fun local_set_get_value = BinaryenLocalSetGetValue(expr : ExpressionRef) : ExpressionRef
+  fun get_local_get_index = BinaryenLocalGetGetIndex(expr : ExpressionRef) : Index
+  fun set_local_is_tee = BinaryenLocalSetIsTee(expr : ExpressionRef) : LibC::Int
+  fun set_local_get_index = BinaryenLocalSetGetIndex(expr : ExpressionRef) : Index
+  fun set_local_get_value = BinaryenLocalSetGetValue(expr : ExpressionRef) : ExpressionRef
   fun global_get_get_name = BinaryenGlobalGetGetName(expr : ExpressionRef) : LibC::Char*
   fun global_set_get_name = BinaryenGlobalSetGetName(expr : ExpressionRef) : LibC::Char*
   fun global_set_get_value = BinaryenGlobalSetGetValue(expr : ExpressionRef) : ExpressionRef
@@ -592,16 +603,20 @@ lib LibBinaryen
   fun module_auto_drop = BinaryenModuleAutoDrop(module : ModuleRef)
   fun module_write = BinaryenModuleWrite(module : ModuleRef, output : LibC::Char*, output_size : LibC::SizeT) : LibC::SizeT
   fun module_write_text = BinaryenModuleWriteText(module : ModuleRef, output : LibC::Char*, output_size : LibC::SizeT) : LibC::SizeT
+
   struct BufferSizes
     output_bytes : LibC::SizeT
     source_map_bytes : LibC::SizeT
   end
+
   fun module_write_with_source_map = BinaryenModuleWriteWithSourceMap(module : ModuleRef, url : LibC::Char*, output : LibC::Char*, output_size : LibC::SizeT, source_map : LibC::Char*, source_map_size : LibC::SizeT) : BufferSizes
+
   struct ModuleAllocateAndWriteResult
     binary : Void*
     binary_bytes : LibC::SizeT
     source_map : LibC::Char*
   end
+
   fun module_allocate_and_write = BinaryenModuleAllocateAndWrite(module : ModuleRef, source_map_url : LibC::Char*) : ModuleAllocateAndWriteResult
   fun module_allocate_and_write_text = BinaryenModuleAllocateAndWriteText(module : ModuleRef*) : LibC::Char*
   fun module_read = BinaryenModuleRead(input : LibC::Char*, input_size : LibC::SizeT) : ModuleRef

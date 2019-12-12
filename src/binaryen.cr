@@ -47,8 +47,8 @@ module Binaryen
     CallIndirect  = LibBinaryen.call_indirect_id
     GetLocal      = LibBinaryen.get_local_id
     SetLocal      = LibBinaryen.set_local_id
-    GetGlobal     = LibBinaryen.get_global_id
-    SetGlobal     = LibBinaryen.set_global_id
+    GetGlobal     = LibBinaryen.global_get_id
+    SetGlobal     = LibBinaryen.global_set_id
     Load          = LibBinaryen.load_id
     Store         = LibBinaryen.store_id
     Const         = LibBinaryen.const_id
@@ -385,7 +385,7 @@ module Binaryen
       when Ids::SetLocal
         LibBinaryen.set_local_get_value(@ref)
       when Ids::SetGlobal
-        LibBinaryen.set_global_get_value(@ref)
+        LibBinaryen.global_set_get_value(@ref)
       when Ids::Store
         LibBinaryen.store_get_value(@ref)
       when Ids::Return
@@ -485,9 +485,9 @@ module Binaryen
       when Ids::SetLocal
         LibBinaryen.set_local_get_index(@ref)
       when Ids::GetGlobal
-        String.new LibBinaryen.get_global_get_name(@ref)
+        String.new LibBinaryen.global_get_name(@ref)
       when Ids::SetGlobal
-        String.new LibBinaryen.set_global_get_name(@ref)
+        String.new LibBinaryen.global_set_get_name(@ref)
       else
         raise "bad Expression Id"
       end
@@ -1043,7 +1043,7 @@ module Binaryen
         (memory_setting.shared ? 1u8 : 0u8)
       auto_drop
       optimize if optimize
-      run_passes ["local-cse", "merge-blocks"]
+      # run_passes ["flatten", "local-cse", "merge-blocks"]
       ret = LibBinaryen.module_allocate_and_write @modl, (src_map_url || Pointer(UInt8).null)
       @source_map = Code.new(Bytes.new ret.source_map, LibC.strlen(ret.source_map), read_only: true) if ret.source_map
       @code = Code.new(Bytes.new ret.binary.as(Pointer(UInt8)), ret.binary_bytes, read_only: true)
@@ -1204,11 +1204,11 @@ module Binaryen
     end
 
     def exp_get_global(name : String, type : Type) : Expression
-      Expression.new LibBinaryen.get_global(@modl, name, type)
+      Expression.new LibBinaryen.global_get(@modl, name, type)
     end
 
     def exp_set_global(name : String, val : Expression) : Expression
-      Expression.new LibBinaryen.set_global(@modl, name, val)
+      Expression.new LibBinaryen.global_set(@modl, name, val)
     end
 
     def exp_load(bytes : Int, signed : Bool, offset : Int, align : Int,

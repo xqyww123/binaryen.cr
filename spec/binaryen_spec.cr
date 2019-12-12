@@ -73,7 +73,7 @@ describe Binaryen do
       eb = mod.exp_block(nil, [
         mod.exp_set_local(0, mod.exp_const(2048)),
         mod.exp(Ops::AddInt32, mod.exp_get_local(0, Types::Int32), mod.exp_const 2),
-      ])
+      ], Types::Int32)
       f = mod.add_function "main", ft, ([Types::Int32] of Type),
         mod.exp_call "f1", [eb], Types::Int32
       mod.start_point = f
