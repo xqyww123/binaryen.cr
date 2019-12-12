@@ -45,8 +45,8 @@ module Binaryen
     Call    = LibBinaryen.call_id
     # CallImport    = LibBinaryen.call_import_id
     CallIndirect  = LibBinaryen.call_indirect_id
-    GetLocal      = LibBinaryen.get_local_id
-    SetLocal      = LibBinaryen.set_local_id
+    GetLocal      = LibBinaryen.local_get_id
+    SetLocal      = LibBinaryen.local_set_id
     GetGlobal     = LibBinaryen.global_get_id
     SetGlobal     = LibBinaryen.global_set_id
     Load          = LibBinaryen.load_id
@@ -1192,15 +1192,15 @@ module Binaryen
 
     # TODO : function builder
     def exp_get_local(index : Int, type : Type) : Expression
-      Expression.new LibBinaryen.get_local(@modl, index, type)
+      Expression.new LibBinaryen.local_get(@modl, index, type)
     end
 
     def exp_set_local(index : Int, val : Expression) : Expression
-      Expression.new LibBinaryen.set_local(@modl, index, val)
+      Expression.new LibBinaryen.local_set(@modl, index, val)
     end
 
     def exp_tee_local(index : Int, val : Expression) : Expression
-      Expression.new LibBinaryen.tee_local(@modl, index, val)
+      Expression.new LibBinaryen.local_tee(@modl, index, val)
     end
 
     def exp_get_global(name : String, type : Type) : Expression
