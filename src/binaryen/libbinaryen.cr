@@ -1,8 +1,7 @@
 @[Link("binaryen")]
 lib LibBinaryen
   fun type_none = BinaryenTypeNone : Type
-  alias X__Uint32T = LibC::UInt
-  alias Uint32T = X__Uint32T
+  alias Uint32T = UInt32
   alias Type = Uint32T
   fun type_int32 = BinaryenTypeInt32 : Type
   fun type_int64 = BinaryenTypeInt64 : Type
@@ -96,17 +95,14 @@ lib LibBinaryen
     data2 : UInt64
   end
 
-  alias X__Int32T = LibC::Int
-  alias Int32T = X__Int32T
+  alias Int32T = Int32
   fun literal_int32 = BinaryenLiteralInt32(x : Int32T) : Literal
   fun literal_int64 = BinaryenLiteralInt64(x : Int64T) : Literal
-  alias X__Int64T = LibC::Long
-  alias Int64T = X__Int64T
+  alias Int64T = Int64
   fun literal_float32 = BinaryenLiteralFloat32(x : LibC::Float) : Literal
   fun literal_float64 = BinaryenLiteralFloat64(x : LibC::Double) : Literal
   fun literal_vec128 = BinaryenLiteralVec128(x : Uint8T[16]) : Literal
-  alias X__Uint8T = UInt8
-  alias Uint8T = X__Uint8T
+  alias Uint8T = UInt8
   fun literal_float32_bits = BinaryenLiteralFloat32Bits(x : Int32T) : Literal
   fun literal_float64_bits = BinaryenLiteralFloat64Bits(x : Int64T) : Literal
   fun clz_int32 = BinaryenClzInt32 : Op
@@ -434,8 +430,7 @@ lib LibBinaryen
   fun global_get = BinaryenGlobalGet(module : ModuleRef, name : LibC::Char*, type : Type) : ExpressionRef
   fun global_set = BinaryenGlobalSet(module : ModuleRef, name : LibC::Char*, value : ExpressionRef) : ExpressionRef
   fun load = BinaryenLoad(module : ModuleRef, bytes : Uint32T, signed_ : Int8T, offset : Uint32T, align : Uint32T, type : Type, ptr : ExpressionRef) : ExpressionRef
-  alias X__Int8T = LibC::Char
-  alias Int8T = X__Int8T
+  alias Int8T = Int8
   fun store = BinaryenStore(module : ModuleRef, bytes : Uint32T, offset : Uint32T, align : Uint32T, ptr : ExpressionRef, value : ExpressionRef, type : Type) : ExpressionRef
   fun const = BinaryenConst(module : ModuleRef, value : Literal) : ExpressionRef
   fun unary = BinaryenUnary(module : ModuleRef, op : Op, value : ExpressionRef) : ExpressionRef
