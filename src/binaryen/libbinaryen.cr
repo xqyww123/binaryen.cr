@@ -89,10 +89,17 @@ lib LibBinaryen
   alias FunctionTypeRef = Void*
   fun remove_function_type = BinaryenRemoveFunctionType(module : ModuleRef, name : LibC::Char*)
 
+  union LiteralUnion
+    i32 : Int32
+    i64 : Int64
+    f32 : Float32
+    f64 : Float64
+    v128 : UInt8[16]
+  end
+
   struct Literal
     type : Int32T
-    data1 : UInt64
-    data2 : UInt64
+    data : LiteralUnion
   end
 
   alias Int32T = Int32
