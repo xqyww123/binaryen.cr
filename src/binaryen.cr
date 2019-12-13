@@ -1036,7 +1036,7 @@ module Binaryen
         @table.functions.map(&.to_unsafe.as UInt8*), @table.functions.size
       LibBinaryen.set_memory @modl, memory_setting.initial, memory_setting.maximum,
         memory_setting.export_name, memory_setting.segments.map(&.data.to_unsafe),
-        (memory_setting.segments.map { |x| x.passive ? 1u8 : 0u8 }),
+        (memory_setting.segments.map { |x| x.passive ? 1i8 : 0i8 }),
         memory_setting.segments.map(&.offset.to_unsafe),
         memory_setting.segments.map(&.data.bytesize.to_u32),
         memory_setting.segments.size.to_u32,
